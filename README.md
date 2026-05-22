@@ -11,16 +11,16 @@
 ### ¿Qué problema resuelve?
 
 Actualmente los nutriólogos hacen estos cálculos a mano o en hojas de Excel, lo que genera:
-- ❌ Errores de cálculo en gramajes
-- ❌ Pérdida de tiempo en planificación
-- ❌ Dificultad para escalar el servicio
-- ❌ Sin reportes administrativos automatizados
+-  Errores de cálculo en gramajes
+-  Pérdida de tiempo en planificación
+-  Dificultad para escalar el servicio
+-  Sin reportes administrativos automatizados
 
 **NutriPrecision** resuelve todo esto con una interfaz web moderna y cálculos automatizados.
 
 ---
 
-## 👥 Integrantes del Equipo
+## Integrantes del Equipo
 
 | Persona | Responsabilidades |
 |---------|-------------------|
@@ -29,7 +29,7 @@ Actualmente los nutriólogos hacen estos cálculos a mano o en hojas de Excel, l
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 | Tecnología | Uso |
 |-----------|-----|
@@ -41,7 +41,7 @@ Actualmente los nutriólogos hacen estos cálculos a mano o en hojas de Excel, l
 | JSON | Almacenamiento de datos estructurados |
 
 
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 nutricion-precision/
@@ -70,7 +70,6 @@ nutricion-precision/
 
 
 
-## 📄 Licencia
+## Licencia
 
-Proyecto académico — Universidad · 2025  
-Para uso educativo únicamente.
+Proyecto académico — Universidad · 2026  
