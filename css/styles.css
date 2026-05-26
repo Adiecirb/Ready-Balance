@@ -1,5 +1,380 @@
+/* Variables de color para mantener un diseño limpio */
+:root {
+    --color-principal: #2c3e50;
+    --color-acento: #27ae60;
+    --color-fondo: #f9f9f9;
+}
+
 body {
-  font-family: Arial;
-  background: #111;
-  color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-fondo);
+    color: var(--color-principal);
+}
+
+/* 1. Header (Arriba izquierda y derecha) */
+.header-principal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+}
+
+.logo-seccion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.botones-auth button {
+    padding: 10px 20px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-secundario { background: transparent; color: var(--color-principal); border: 1px solid var(--color-principal) !important; }
+.btn-primario, .btn-accion-grande { background: var(--color-acento); color: white; }
+
+/* Ajuste de tamaño para el logo de Ready Balance */
+.logo-seccion img {
+    width: 150px;  /* Ancho de la imagen. Puedes subir o bajar este número */
+    height: auto;  /* Altura automática para que no se deforme o aplaste */
+}
+
+/* Sección Blog */
+
+.seccion-blog {
+    background-color: #eee;
+    padding: 12px 20px;
+}
+
+.seccion-blog ul {
+    list-style: none;
+    display: flex;
+    align-items: center; /* Alinea los textos verticalmente al centro */
+    margin: 0;
+    padding: 0;
+    width: 100%; /* Asegura que la barra ocupe todo el ancho disponible */
+}
+
+/* 1. Estilo especial SOLO para el primer elemento ("Blog") */
+.seccion-blog ul li:first-child {
+    margin-right: auto; 
+}
+
+.seccion-blog ul li:first-child a {
+    font-size: 20px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+    color: var(--color-principal);
+}
+
+/* 2. Estilo para que los demás elementos se repartan el espacio */
+.seccion-blog ul li:not(:first-child) {
+    flex: 1; /* Hace que Dietas, Tips y Nutrición se dividan el espacio sobrante en partes iguales */
+    text-align: center; /* Centra el texto dentro de su propio espacio */
+}
+
+.seccion-blog a { 
+    text-decoration: none; 
+    color: #555; 
+    font-weight: bold; 
+}
+
+/* --- 2. SECCIÓN INICIAR AHORA --- */
+.iniciar-ahora {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Ajustamos el padding para darle mucho espacio a los lados, como en la imagen */
+    padding: 80px 10%; 
+    background-color: #6CBE71; 
+    color: white; /* Obliga a que todo el texto aquí sea blanco */
+}
+
+.texto-iniciar { 
+    flex: 1; 
+    padding-right: 60px; 
+}
+
+.texto-iniciar h2 { 
+    font-size: 3.5rem; /* Letra súper grande e impactante */
+    margin-bottom: 20px; 
+    line-height: 1.2; /* Junta un poco los renglones del título */
+    font-weight: bold;
+}
+
+.texto-iniciar p {
+    font-size: 1.2rem;
+    margin-bottom: 40px; /* Espacio amplio antes del botón */
+    line-height: 1.5;
+}
+
+/* El botón */
+.btn-accion-grande { 
+    background-color: #2B3A4A; 
+    color: white;
+    padding: 15px 40px; 
+    font-size: 1.1rem; 
+    font-weight: bold;
+    border-radius: 30px; /* Bordes muy redondeados tipo pastilla */
+    border: none; 
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Efecto al pasar el mouse por el botón */
+.btn-accion-grande:hover {
+    background-color: #1A252F; 
+    transform: translateY(-2px); /* Se levanta un poquito al tocarlo */
+}
+
+.imagen-iniciar { 
+    flex: 1; 
+    display: flex;
+    justify-content: center; /* Centra el celular en su mitad de la pantalla */
+}
+
+/* Ajustes para la imagen del celular */
+.img-hero {
+    max-width: 280px; /* Ajusta este valor dependiendo del tamaño de tu imagen */
+    height: auto;
+    /* Opcional: Le da una sombra suave al celular para que parezca que flota */
+    filter: drop-shadow(0px 20px 30px rgba(0, 0, 0, 0.3));
+}
+
+/* 3. Recomendaciones */
+.recomendaciones {
+    text-align: center;
+    padding: 50px 40px;
+    background-color: #2c3e50;
+}
+/* Esto hará que específicamente el título oculto se vuelva blanco */
+.recomendaciones h3 {
+    color: white;
+    margin-top: 15px; /* Le da un pequeño respiro de separación con las estrellas */
+    font-size: 2.6rem;
+    font-weight: 300;
+}
+
+.estrellas-grandes { font-size: 2.5rem; letter-spacing: 5px; }
+.contenedor-resenas {
+    display: flex;
+    overflow-x: auto; /* Permite el movimiento horizontal */
+    gap: 20px;
+    padding: 20px 0;
+    margin-top: 20px;
+    
+    /* Magia para ocultar la barra en Firefox e Internet Explorer/Edge antiguo */
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+}
+
+/* Magia para ocultar la barra en Chrome, Safari y el nuevo Edge */
+.contenedor-resenas::-webkit-scrollbar {
+    display: none;
+}
+.resena {
+    background: white;
+    min-width: 250px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    text-align: left;
+}
+
+/* 4. Instrucciones */
+.instrucciones {
+    padding: 50px 40px;
+    background: white;
+    text-align: center;
+}
+.pasos {
+    display: inline-block;
+    text-align: left;
+    background: #f9f9f9;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+/* --- 5. SECCIÓN RESULTADOS Y METAS --- */
+.resultados-metas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 80px 5%;
+    background-color: #2c3e50; /* Fondo limpio para que resalten las fotos */
+    color: white;
+    overflow: hidden; /* Evita que las imágenes se salgan de la pantalla */
+}
+
+/* --- ESTILOS DEL TEXTO CENTRAL --- */
+.texto-resultados-centro {
+    flex: 1;
+    text-align: center;
+    padding: 0 40px;
+    max-width: 600px; /* Limita el ancho del texto para que no se vea estirado */
+}
+
+.subtitulo {
+    color: #6CBE71; /* Tono verde */
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+}
+
+.texto-resultados-centro h2 {
+    font-size: 2.8rem;
+    color: white; /* Azul oscuro */
+    margin: 15px 0 20px 0;
+    line-height: 1.2;
+}
+
+.texto-resultados-centro p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: whitesmoke;
+}
+
+/* --- ESTILOS DE LAS IMÁGENES ENCIMADAS --- */
+.columna-imagenes {
+    display: flex;
+    flex-direction: column;
+    width: 260px; /* Espacio fijo para las columnas laterales */
+}
+
+.columna-imagenes img {
+    width: 200px;
+    height: 250px;
+    object-fit: cover; /* Evita que la foto se deforme, la recorta bonito */
+    border-radius: 15px; /* Bordes redondeados */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); /* Sombrita para dar profundidad */
+    border: 5px solid white; /* Borde blanco grueso que hace visible el encimado */
+}
+
+/* Magia del encimado */
+.img-arriba {
+    align-self: flex-start; /* Alinea esta imagen hacia un lado */
+    z-index: 1; 
+    position: relative;
+}
+
+.img-abajo {
+    align-self: flex-end; /* Alinea esta hacia el lado contrario para darle movimiento */
+    margin-top: -60px; /* EL TRUCO: Margen negativo que la empuja hacia arriba */
+    z-index: 2; /* Asegura que esta imagen se dibuje por encima de la primera */
+    position: relative;
+}
+
+/* Cambia la dirección del "escalón" solo en la columna derecha */
+.columna-imagenes.derecha .img-arriba {
+    align-self: flex-end; /* Empuja la imagen superior hacia la derecha */
+}
+
+.columna-imagenes.derecha .img-abajo {
+    align-self: flex-start; /* Empuja la imagen inferior hacia la izquierda */
+}
+
+/* --- ESTILOS DEL CARRUSEL (Texto Central) --- */
+.carrusel-experiencias {
+    position: relative;
+    min-height: 250px; /* Evita que la página "salte" si un texto es más largo que otro */
+    margin-top: 15px;
+}
+
+.slide-experiencia {
+    display: none; /* Oculta todas las diapositivas por defecto */
+    animation: fade-in 0.6s ease-in-out; /* Animación suave al aparecer */
+}
+
+/* Solo se mostrará la diapositiva que tenga esta clase */
+.slide-experiencia.activo {
+    display: block; 
+}
+
+.slide-experiencia small {
+    display: block;
+    margin-top: 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #888; /* Color gris sutil para el nombre del autor */
+}
+
+/* --- ESTILOS DE LOS PUNTOS INDICADORES --- */
+.puntos-carrusel {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.punto {
+    width: 12px;
+    height: 12px;
+    background-color: #ddd; /* Puntos inactivos en gris claro */
+    border-radius: 50%; /* Los hace círculos perfectos */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.punto.activo {
+    background-color: #6CBE71; /* Punto activo en tu color verde */
+}
+
+/* La animación que hace que el texto aparezca suavemente */
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 6. Descarga la App */
+/* --- 6. SECCIÓN DESCARGA LA APP --- */
+.descarga-app {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Redujimos el padding de 80px a 40px para hacer la sección más pequeña/delgada */
+    padding: 40px 10%; 
+    background-color: #6CBE71; /* Usamos el mismo verde moderno, o puedes cambiarlo al azul oscuro #2B3A4A */
+    color: white;
+    gap: 40px; /* Mantiene una separación segura entre la imagen y el texto */
+}
+
+.imagen-descarga {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+/* Estilo para el celular pequeño */
+.img-app {
+    max-width: 600px; /* Ajusta este valor dependiendo del tamaño de tu imagen */
+    height: auto;
+    /* Opcional: Le da una sombra suave al celular para que parezca que flota */
+    filter: drop-shadow(0px 20px 30px rgba(0, 0, 0, 0.3));
+}
+
+.texto-descarga {
+    flex: 1;
+    /* Como el texto ahora está a la derecha, le damos espacio a su izquierda para que no choque con la imagen */
+    padding-left: 20px; 
+}
+
+.texto-descarga h2 {
+    font-size: 2.8rem; /* Letra un poco más pequeña que el 3.5rem de arriba */
+    margin-bottom: 15px;
+    line-height: 1.2;
+    font-weight: bold;
+}
+
+.texto-descarga p {
+    font-size: 1.1rem;
+    line-height: 1.5;
 }
