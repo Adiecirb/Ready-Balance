@@ -1,8 +1,13 @@
- /* CONFIG.JS — Plataforma Logística de Nutrición de Precisión
+ /* CONFIG.JS 
   Este es el archivo de CONFIGURACIÓN del sistema. Carga todos los 
   datos que la aplicación necesita(alimentos, usuarios, planes) desde 
   archivos JSON externos.Centraliza toda la configuración en un solo lugar. 
- */
+ 
+  FETCH() — Peticiones HTTP para cargar los archivos JSON. Es asíncrono, por eso usamos async/await.
+  ASYNC/AWAIT — Permite escribir código asíncrono de forma más legible, como si fuera síncrono.
+  PROMISE.ALL() — Carga los 3 archivos JSON al mismo tiempo, lo que es más eficiente que cargarlos uno por uno.
+  RESPONSE.JSON() — Convierte la respuesta del servidor de texto JSON a un objeto/array de JavaScript.
+  */
 
 // SECCIÓN 1: CONFIGURACIÓN GLOBAL DEL SISTEMA
 // Objeto que centraliza toda la configuración de la aplicación.
@@ -83,7 +88,11 @@ async function cargarDatos() {
 
 // SECCIÓN 3: FUNCIÓN AUXILIAR PARA PETICIONES HTTP
 //Hace la petición HTTP real. Encapsula el fetch()
-
+ /**
+ * @param {string} url - Ruta al archivo JSON
+ * @param {string} nombreRecurso - Nombre para mensajes de error
+ * @returns {Promise<Array|Object>} - Los datos del JSON
+ */
 async function obtenerJSON(url, nombreRecurso) {
   try {
     // AbortController permite cancelar una petición después de X tiempo.
@@ -140,6 +149,11 @@ async function obtenerJSON(url, nombreRecurso) {
 //Verifica que los datos JSON descargados tengan la estructura
 // correcta antes de usarlos. Evita errores difíciles de depurar.
 
+ /**
+ * @param {*} datos - Los datos recibidos
+ * @param {string} tipo - Tipo de datos para saber qué validar
+ * @returns {boolean} - true si los datos son válidos
+ */
 
 function validarEstructuraDatos(datos, tipo) {
   if (!datos) return false;
@@ -163,6 +177,11 @@ function validarEstructuraDatos(datos, tipo) {
 // SECCIÓN 5: MANEJO DE ERRORES 
 // Si ocurre cualquier error durante la carga de datos, esta función se encarga de
 //  mostrar un mensaje amigable al usuario y retornar estructuras vacías para que la aplicación no se rompa por completo.
+
+/**
+ * @param {Error} error - El error que ocurrió
+ * @returns {Object} - Estructura vacía para evitar errores en la app
+ */
 function manejarError(error) {
   // Buscamos el elemento HTML donde mostrar errores al usuario
   const contenedorError = document.getElementById("error-mensaje");
@@ -192,6 +211,9 @@ function manejarError(error) {
 // SECCIÓN 6: FUNCIÓN DE RECARGA FORZADA
 // Limpia el caché y vuelve a cargar todo desde cero.
 //Útil cuando el administrador actualiza los datos.
+
+// @returns {Promise<Object>} - Datos frescos desde los archivos JSON
+ 
 
 async function recargarDatos() {
   console.log("🔄 Forzando recarga de datos (limpiando caché)...");
