@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Planes - Ready Balance</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="fondo-dashboard">
+
+    <div class="overlay-menu" id="overlay-menu"></div>
+    
+    <aside class="sidebar-menu" id="sidebar-menu">
+        <div class="sidebar-header">
+            <h3>Menú</h3>
+            <button id="btn-cerrar-menu" class="icono-btn">✕</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="./dashboard.html">Mis Planes</a></li>
+            <li><a href="./blogs.html">Blogs</a></li>
+            <li><a href="#">Ajustes</a></li>
+            <li><a href="./index.html" class="texto-rojo">Cerrar Sesión</a></li>
+        </ul>
+    </aside>
+
+    <nav class="navbar-dashboard">
+        <div class="nav-izq">
+            <button id="btn-menu-lateral" class="icono-btn">
+                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <div class="nav-centro">
+            <a href="#" class="nav-link activo">Mis Dietas</a>
+            <a href="#" class="nav-link">Nutriólogos</a>
+            <a href="#" class="nav-link">Mi perfil</a>
+            <a href="#" class="nav-link">Mi avance</a>
+        </div>
+
+        <div class="nav-der">
+            <button class="icono-btn avatar-usuario">
+                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </button>
+        </div>
+    </nav>
+
+    <main class="contenedor-principal-planes">
+        
+        <section class="bloque-comida">
+            <h2 class="titulo-comida">Desayuno</h2>
+            <div class="contenedor-items-comida" id="datos-desayuno">
+                <p class="texto-fantasma">Alimentos aquí...</p>
+            </div>
+        </section>
+
+        <section class="bloque-comida">
+            <h2 class="titulo-comida">Almuerzo</h2>
+            <div class="contenedor-items-comida" id="datos-almuerzo">
+                <p class="texto-fantasma">Alimentos aquí...</p>
+            </div>
+        </section>
+
+        <section class="bloque-comida">
+            <h2 class="titulo-comida">Comida</h2>
+            <div class="contenedor-items-comida" id="datos-comida">
+                <p class="texto-fantasma">Alimentos aquí...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script type="module" src="./js/main.js"></script>
+
+</body>
+</html>
