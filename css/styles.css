@@ -43,7 +43,7 @@ body {
 
 /* Ajuste de tamaño para el logo de Ready Balance */
 .logo-seccion img {
-    width: 150px;  /* Ancho de la imagen. Puedes subir o bajar este número */
+    width: 120px;  /* Ancho de la imagen. Puedes subir o bajar este número */
     height: auto;  /* Altura automática para que no se deforme o aplaste */
 }
 
@@ -189,18 +189,70 @@ body {
     text-align: left;
 }
 
-/* 4. Instrucciones */
+/* --- 4. SECCIÓN INSTRUCCIONES (Diseño de 3 pasos) --- */
 .instrucciones {
-    padding: 50px 40px;
+    padding: 80px 5%;
     background: white;
     text-align: center;
 }
-.pasos {
-    display: inline-block;
-    text-align: left;
-    background: #f9f9f9;
-    padding: 30px;
-    border-radius: 10px;
+
+.instrucciones h2 {
+    font-size: 2.5rem;
+    color: #2B3A4A;
+    margin-bottom: 50px;
+    font-weight: 500;
+}
+
+/* Contenedor que alinea los 3 pasos uno al lado del otro */
+.pasos-grid {
+    display: flex;
+    justify-content: center;
+    gap: 40px; /* Separación entre cada columna */
+    flex-wrap: wrap; /* Permite que se acomoden hacia abajo en pantallas pequeñas */
+    margin-bottom: 40px;
+}
+
+.paso-item {
+    flex: 1;
+    max-width: 300px; /* Evita que las tarjetas se hagan demasiado anchas */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* El cuadro de color de fondo redondeado para las imágenes */
+.img-contenedor {
+    background-color: #E2F2EF; 
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Mantiene el contenedor perfectamente cuadrado */
+    border-radius: 25px; /* Bordes muy redondeados */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Evita que la imagen se salga de los bordes redondeados */
+    margin-bottom: 20px;
+}
+
+.img-contenedor img {
+    width: 85%; /* Hace que la imagen respire un poco dentro del cuadro de color */
+    height: 85%;
+    object-fit: contain; /* Ajusta la imagen sin deformarla */
+}
+
+/* Títulos debajo de cada imagen */
+.paso-item h3 {
+    color: #4CAF50; /* Color verde/menta para el texto */
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Párrafo descriptivo en la parte inferior */
+.instrucciones-desc {
+    max-width: 800px; /* Evita que el texto ocupe toda la pantalla de lado a lado */
+    margin: 0 auto; /* Centra el bloque de texto */
+    color: #555;
+    font-size: 1.2rem;
+    line-height: 1.6;
 }
 
 /* --- 5. SECCIÓN RESULTADOS Y METAS --- */
@@ -377,4 +429,988 @@ body {
 .texto-descarga p {
     font-size: 1.1rem;
     line-height: 1.5;
+}
+
+
+/* --- FONDO Y TARJETA DEL CUESTIONARIO --- */
+.vista-onboarding {
+    position: fixed; /* Cubre toda la pantalla */
+    top: 0; left: 0; width: 100%; height: 100vh;
+    background-color: #EAF4F4; /* Fondo de afuera */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.tarjeta-onboarding {
+    background-color: #ffffff;  /* --- FONDO de adentro --- */
+    width: 100%;
+    max-width: 550px;
+    min-height: 600px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    padding: 30px 40px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.onboarding-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    margin-bottom: 30px;
+}
+
+.logo-pequeno { height: 42px; width: auto; }
+.nombre-app { font-weight: bold; font-size: 1.5rem; color: #2B3A4A; }
+
+/* --- CONTROL DE PASOS --- */
+.paso-cuestionario {
+    display: none; /* Oculta todos por defecto */
+    flex: 1;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease;
+}
+
+.paso-cuestionario.activo {
+    display: flex; /* Solo muestra el que tiene la clase activa */
+}
+
+/* --- TIPOGRAFÍA GENERAL DEL CUESTIONARIO --- */
+.paso-cuestionario h2 {
+    text-align: center;
+    color: #1A3636;
+    font-size: 1.7rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.pregunta-principal {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+/* --- BOTONES DE OPCIÓN (Plantilla 1) --- */
+.opciones-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.btn-opcion {
+    background-color: #F8F9FA;
+    border: 2px solid transparent;
+    padding: 18px 20px;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    text-align: left;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-opcion:hover {
+    background-color: #EAF4F4;
+    border-color: #A3D2CA;
+}
+
+/* --- BOTONES CON CHECKBOX A LA DERECHA (Plantilla 3) --- */
+.fila-opcion {
+    background-color: #F8F9FA;
+    padding: 18px 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.fila-opcion input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #2B3A4A; /* Color oscuro al hacer check */
+    cursor: pointer;
+}
+
+/* --- LISTAS DE PRIVACIDAD (Plantilla 2) --- */
+/* --- LISTAS DE PRIVACIDAD (Plantilla 2) --- */
+.lista-privacidad { 
+    list-style: none; 
+    padding: 0; 
+    margin-bottom: 30px; 
+}
+
+.lista-privacidad li {
+    display: flex;
+    align-items: center; /* Alinea perfectamente el círculo con el texto */
+    gap: 20px; /* Separación exacta entre el círculo y las letras */
+    margin-bottom: 25px;
+}
+
+/* El truco de los círculos blancos */
+.icono-lista { 
+    background-color: #f0f0f0; /* Fondo blanco */
+    min-width: 55px; /* Evita que el círculo se aplaste */
+    height: 55px;
+    border-radius: 50%; /* Convierte el cuadrado en un círculo perfecto */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.6rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06); /* Sombra muy suave para que resalte sobre el fondo de la tarjeta */
+}
+
+/* Ajuste del texto a la derecha de los iconos */
+.lista-privacidad p {
+    margin: 0;
+    color: #444;
+    font-size: 1.05rem;
+    line-height: 1.4;
+}
+
+.enlaces-legales {
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.enlaces-legales a { 
+    color: #888; 
+    text-decoration: none; 
+}
+
+/* --- CONTROLES DE NAVEGACIÓN INFERIOR --- */
+.controles-inferiores {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto; /* Empuja los botones hasta abajo de la tarjeta */
+    padding-top: 20px;
+}
+
+.btn-atras {
+    background-color: #F0F0F0;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.btn-siguiente-oscuro {
+    background-color: #233142;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+}
+.controles-inferiores .btn-siguiente-oscuro {
+    width: calc(100% - 60px); /* Ajusta el ancho si está junto al botón de atrás */
+}
+
+/* --- BOTÓN PARA CERRAR EL CUESTIONARIO --- */
+.btn-cerrar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 10;
+}
+
+.btn-cerrar:hover {
+    color: #FF5A5F; /* Se pone rojito al pasar el mouse */
+}
+
+/* --- ESTADO "SELECCIONADO" PARA LOS BOTONES --- */
+.btn-opcion.seleccionado {
+    background-color: #EAF4F4; /* Fondo menta claro */
+    border-color: #6CBE71; /* Borde verde */
+    font-weight: bold;
+    color: #1A3636;
+}
+
+
+
+
+
+
+/* ========================================== */
+/* ESTILOS ESPECÍFICOS: PANTALLA DE PRIVACIDAD */
+/* ========================================== */
+
+/* 1. Centrar la imagen superior */
+.ilustracion-top {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0px;
+}
+
+.ilustracion-top img {
+    max-width: 200px; /* Ajusta este valor si la quieres más grande o chica */
+    height: auto;
+}
+
+/* 2. Bajar el botón de "Continuar" hasta el fondo */
+#q-privacidad .btn-siguiente-oscuro {
+    margin-top: auto; /* Esta es la magia: empuja el botón todo lo que pueda hacia abajo */
+}
+
+/* ========================================== */
+/* CHECKBOX PERSONALIZADO (El cuadrito verde) */
+/* ========================================== */
+
+/* Ocultar el checkbox feo predeterminado del navegador */
+.checkbox-personalizado input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* El contenedor del texto y el cuadrito */
+.checkbox-personalizado {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-left: 40px; /* Deja espacio para dibujar el nuevo cuadro */
+    margin-bottom: 30px; /* Separación con el botón de abajo */
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #444;
+    user-select: none; /* Evita que el texto se seleccione por accidente */
+}
+
+/* El nuevo cuadrito vacío (Gris claro) */
+.checkmark {
+    position: absolute;
+    left: 0;
+    height: 24px;
+    width: 24px;
+    background-color: #eee;
+    border-radius: 6px; /* Bordes ligeramente redondeados */
+    transition: background-color 0.2s ease;
+}
+
+/* Cambia un poco de color al pasar el mouse por encima */
+.checkbox-personalizado:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+/* Se pinta de VERDE cuando le das clic (Check) */
+.checkbox-personalizado input:checked ~ .checkmark {
+    background-color: #6CBE71;
+}
+
+/* Preparar la "palomita" blanca (oculta por defecto) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Mostrar la palomita solo cuando está activado el check */
+.checkbox-personalizado input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Dibujar la forma de la palomita usando bordes CSS */
+.checkbox-personalizado .checkmark:after {
+    left: 8px;
+    top: 4px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg); /* Gira el borde para que parezca una ✓ */
+}
+
+/* ========================================== */
+/* PANTALLA: INFO DIETA (Imagen de la gráfica)*/
+/* ========================================== */
+
+.ilustracion-central {
+    display: flex;
+    justify-content: center; /* Centra la imagen horizontalmente */
+    align-items: center;
+    margin: 20px 0; /* Le da un respiro arriba y abajo */
+}
+
+.ilustracion-central img {
+    max-width: 80%; /* Evita que la imagen sea más ancha que su contenedor */
+    max-height: 250px; /* <--- ESTA ES LA CLAVE: Le pone un límite de altura */
+    height: auto; 
+    object-fit: contain; /* Asegura que la imagen no se deforme ni se estire */
+    border-radius: 15px; /* Opcional: Le redondea las esquinas un poquito para que se vea más suave */
+}
+
+/* ========================================== */
+/* ESTILOS: PANTALLA DE CREAR CUENTA */
+/* ========================================== */
+
+.formulario-registro {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio entre cada campo de texto */
+    margin-top: 20px;
+}
+
+/* Contenedor de los inputs */
+.grupo-input-redondo {
+    position: relative;
+    width: 100%;
+}
+
+/* Estilo de los campos de texto */
+.grupo-input-redondo input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 1px solid #A4B8C4; /* El borde azul/grisáceo de tu imagen */
+    border-radius: 25px; /* Bordes muy redondos */
+    font-size: 1.05rem;
+    color: #333;
+    background-color: #FAFAFA; /* Un gris casi blanco de fondo */
+    outline: none;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box; /* Evita que el padding rompa el ancho */
+}
+
+/* Efecto al seleccionar el campo de texto */
+.grupo-input-redondo input:focus {
+    border-color: #6CBE71; /* Se pone verde (tu color principal) al escribir */
+    background-color: #FFFFFF;
+}
+
+/* El ojito de la contraseña */
+.btn-ver-pass {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%); /* Lo centra perfectamente en vertical */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botón de Regístrate (Grisáceo como en tu imagen) */
+.btn-registro-submit {
+    background-color: #8C9BA5; /* Color gris azulado */
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-registro-submit:hover {
+    background-color: #72808A; /* Se oscurece un poco al pasar el mouse */
+}
+
+/* Textos legales del final */
+.texto-terminos-registro {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 15px;
+    line-height: 1.5;
+}
+
+.texto-terminos-registro a {
+    color: #A4B8C4;
+    text-decoration: underline;
+}
+
+/* ========================================== */
+/* PANTALLA: VAMOS A CONOCERTE (Progresiva) */
+/* ========================================== */
+
+.alinear-izq {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+/* Contenedor de cada pregunta para la animación */
+.bloque-pregunta {
+    margin-bottom: 30px;
+}
+
+.bloque-pregunta.oculto {
+    display: none;
+}
+
+.bloque-pregunta.visible {
+    display: block;
+    animation: aparecerAbajo 0.4s ease-out forwards;
+}
+
+@keyframes aparecerAbajo {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Botones de Género (Diseño Píldora) */
+.opciones-pildora {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-pildora {
+    background-color: #F4F7F8;
+    border: 2px solid transparent;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-size: 1.05rem;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-pildora:hover {
+    background-color: #EAF4F4;
+}
+
+.btn-pildora.seleccionado {
+    background-color: #EAF4F4;
+    border-color: #6CBE71;
+    font-weight: bold;
+}
+
+/* Inputs con unidad adentro (Peso, Edad, Estatura) */
+.input-con-unidad {
+    position: relative;
+    width: 100%;
+}
+
+.input-con-unidad input {
+    width: 100%;
+    padding: 18px 80px 18px 20px; /* Espacio derecho extra para que el texto no pise la unidad */
+    border: 1px solid #A4B8C4;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    color: #333;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.input-con-unidad input:focus {
+    border-color: #F09A59; /* Color naranja al escribir */
+}
+
+/* El círculo naranja de la unidad (kg, cm) */
+.unidad-pill {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 1px solid #F09A59;
+    color: #F09A59;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    background-color: transparent;
+    pointer-events: none; /* Evita que estorbe si el usuario hace clic sobre él */
+}
+
+/* Ocultar el botón siguiente inicialmente */
+#btn-siguiente-conocer.oculto {
+    display: none;
+}
+#btn-siguiente-conocer.visible {
+    display: block;
+}
+
+/* ========================================== */
+/* AJUSTES DE PROPORCIÓN: VAMOS A CONOCERTE   */
+/* ========================================== */
+
+/* 1. Título más pequeño y recorrido hacia arriba */
+#q-conocer-usuario h2 {
+    font-size: 1.7rem; /* Reduce el tamaño (antes era 2.2rem) */
+    margin-top: -10px; /* Truco para "jalar" el texto hacia el logo */
+    margin-bottom: 20px; /* Reduce el espacio con la primera pregunta */
+}
+
+/* 2. Reducir el espacio entre una pregunta y otra */
+#q-conocer-usuario .bloque-pregunta {
+    margin-bottom: 18px; /* Antes estaba en 30px, ahora estarán más juntitas */
+}
+
+/* 3. Pegar más la pregunta (ej. "¿Cuál es tu edad?") a su caja de texto */
+#q-conocer-usuario .alinear-izq {
+    margin-bottom: 8px; /* Antes estaba en 15px */
+    font-size: 1.05rem; /* Un toque más pequeño para que no compita con lo que el usuario escribe */
+}
+
+/* 4. Hacer los campos de texto ligeramente más delgados/elegantes */
+#q-conocer-usuario .input-con-unidad input {
+    padding: 14px 80px 14px 20px; /* Le quitamos un poco de "gordura" vertical al input */
+}
+
+#q-conocer-usuario .btn-pildora {
+    padding: 10px 22px; /* Las píldoras también un poco más compactas */
+}
+
+/* ========================================== */
+/* ESTILOS: SLIDER DE RITMO (META Y RITMO)    */
+/* ========================================== */
+
+.contenedor-slider {
+    margin-top: 20px;
+    padding: 0 10px;
+}
+
+/* Contenedor de los iconos */
+.slider-iconos {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 1.8rem; /* Tamaño de los emojis */
+    filter: grayscale(100%) opacity(40%); /* Los hace ver grisáceos/inactivos por defecto */
+    transition: all 0.3s ease;
+}
+
+/* Clase para cuando un icono está activo (Se pinta de color) */
+.icono-ritmo.activo {
+    filter: grayscale(0%) opacity(100%);
+    transform: scale(1.2); /* Lo hace un poquito más grande */
+}
+
+/* 1. Ocultar la barra fea por defecto */
+.slider-ritmo {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #EEEEEE; /* Gris claro de fondo */
+    border-radius: 5px;
+    outline: none;
+    margin-bottom: 15px;
+}
+
+/* 2. Diseñar la "Bolita" (Thumb) para Chrome/Safari */
+.slider-ritmo::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #F09A59; /* Tu color Naranja */
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15); /* Sombra elegante */
+}
+
+/* 3. Diseñar la "Bolita" (Thumb) para Firefox */
+.slider-ritmo::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #F09A59;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Textos debajo de la barra */
+.slider-textos {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #2B3A4A;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.slider-textos span {
+    flex: 1;
+}
+
+/* Alineamos cada texto con su posición en la barra */
+.slider-textos span:first-child { text-align: left; }
+.slider-textos span:nth-child(2) { text-align: center; }
+.slider-textos span:last-child { text-align: right; }
+
+/* ========================================== */
+/* ESTILOS: BOTONES SÍ / NO (Restricciones)   */
+/* ========================================== */
+
+.opciones-mitad {
+    display: flex;
+    gap: 20px; /* El espacio en medio de los dos botones */
+    margin-top: 15px;
+}
+
+.btn-opcion-mitad {
+    flex: 1; /* Magia pura: obliga a ambos botones a medir exactamente el 50% */
+    background-color: #F8F9FA;
+    border: 2px solid transparent;
+    padding: 25px 20px; /* Un poco más gorditos para que sea fácil tocarlos en celular */
+    border-radius: 20px;
+    font-size: 1.15rem;
+    text-align: center;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-opcion-mitad:hover {
+    background-color: #EAF4F4;
+    border-color: #A3D2CA;
+}
+
+/* El estado cuando le das clic */
+.btn-opcion-mitad.seleccionado {
+    background-color: #EAF4F4;
+    border-color: #6CBE71;
+    color: #1A3636;
+    font-weight: bold;
+}
+
+/* ========================================== */
+/* ESTILOS: TARJETAS DE COMIDAS (Grid 2x2)    */
+/* ========================================== */
+
+.grid-comidas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas del mismo ancho */
+    gap: 15px; /* Espacio entre tarjetas */
+    margin-top: 10px;
+}
+
+/* Diseño de cada tarjeta */
+.btn-tarjeta-comida {
+    background-color: #FFFFFF;
+    border: 2px solid #E5E7EB; /* Gris clarito para el borde por defecto */
+    border-radius: 15px;
+    padding: 25px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; /* Separación entre los emojis y el texto */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); /* Sombra súper suave */
+}
+
+/* Efecto al pasar el mouse por encima */
+.btn-tarjeta-comida:hover {
+    border-color: #A3D2CA;
+    transform: translateY(-2px); /* Pequeño salto hacia arriba */
+}
+
+/* Efecto al hacer clic / seleccionarlo */
+.btn-tarjeta-comida.seleccionado {
+    background-color: #EAF4F4;
+    border-color: #6CBE71;
+    box-shadow: 0 4px 12px rgba(108, 190, 113, 0.15); /* Sombra verde */
+}
+
+/* Estilo para los emojis */
+.emojis-comida {
+    font-size: 1.4rem;
+    letter-spacing: 2px; 
+}
+
+/* Estilo para el texto (ej. "5 comidas") */
+.texto-comida {
+    font-size: 1.05rem;
+    color: #1A3636;
+    font-weight: 500;
+}
+
+.btn-tarjeta-comida.seleccionado .texto-comida {
+    font-weight: bold;
+}
+
+/* ========================================== */
+/* ESTILOS: PANTALLA DE CARGA FINAL           */
+/* ========================================== */
+
+.contenedor-carga {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 350px; /* Le da suficiente espacio vertical para verse centrada */
+}
+
+/* El círculo base */
+.spinner {
+    width: 70px;
+    height: 70px;
+    border: 6px solid #EAF4F4; /* Fondo del círculo (verde muy clarito) */
+    border-top: 6px solid #6CBE71; /* El borde que gira (tu verde principal) */
+    border-radius: 50%;
+    animation: girar 1s linear infinite; /* Hace que gire a velocidad constante para siempre */
+}
+
+/* La instrucción matemática para girar 360 grados */
+@keyframes girar {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estado deshabilitado para los botones Siguiente */
+.btn-siguiente-oscuro:disabled {
+    background-color: #D1D5DB !important; /* Color gris inactivo */
+    color: #9CA3AF !important;
+    cursor: not-allowed;
+    transform: none !important; /* Evita que haga la animación de flotar si está apagado */
+}
+
+/* ========================================== */
+/* PANTALLA: DASHBOARD DE PLANES ALIMENTICIOS */
+/* ========================================== */
+
+.fondo-dashboard {
+    background-color: #F4F7F8; /* Un fondo gris muy clarito para que contraste con las futuras tarjetas blancas */
+    margin: 0;
+    font-family: 'Arial', sans-serif; /* Asegura que tome tu fuente principal */
+}
+
+/* --- SECCIÓN 1: BARRA DE NAVEGACIÓN --- */
+.navbar-dashboard {
+    background-color: #FFFFFF;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Sombra suave abajo */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Contenedores de la barra para distribuir el espacio */
+.nav-izq, .nav-der {
+    flex: 1; /* Toman el mismo espacio a los lados */
+}
+
+.nav-der {
+    display: flex;
+    justify-content: flex-end; /* Empuja el icono de perfil a la derecha */
+}
+
+.nav-centro {
+    display: flex;
+    gap: 30px; /* Separación entre los textos del menú */
+}
+
+.icono-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s ease;
+}
+
+.icono-btn:hover {
+    transform: scale(1.1);
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #8C9BA5;
+    font-size: 1.05rem;
+    font-weight: 500;
+    padding-bottom: 5px;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #6CBE71;
+}
+
+/* El link de la página actual ("Mis Dietas") */
+.nav-link.activo {
+    color: #1A3636;
+    font-weight: bold;
+    border-bottom: 2px solid #6CBE71; /* Subrayado verde */
+}
+
+/* --- SECCIÓN 2: ÁREA DE PLANES --- */
+.contenedor-principal-planes {
+    max-width: 900px; /* Ancho máximo para que no se estire infinito en monitores grandes */
+    margin: 40px auto; /* Centrado en pantalla */
+    padding: 0 20px;
+}
+
+.bloque-comida {
+    margin-bottom: 40px;
+}
+
+.titulo-comida {
+    font-size: 1.8rem;
+    color: #1A3636;
+    border-bottom: 2px solid #A4B8C4; /* La línea divisoria que dibujaste en tu boceto */
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.contenedor-items-comida {
+    min-height: 100px;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Texto temporal para tu compañero */
+.texto-fantasma {
+    color: #A4B8C4;
+    font-style: italic;
+    border: 2px dashed #D1D5DB;
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+/* ========================================== */
+/* ESTILOS: MENÚ LATERAL (SIDEBAR)            */
+/* ========================================== */
+
+/* La capa oscura semitransparente */
+.overlay-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.overlay-menu.activo {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* El panel lateral */
+.sidebar-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background-color: #FFFFFF;
+    z-index: 1000;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+    transform: translateX(-100%); /* Escondido por defecto */
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cuando el menú se abre */
+.sidebar-menu.activo {
+    transform: translateX(0); /* Regresa a su posición original */
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    color: #1A3636;
+}
+
+.sidebar-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-links li a {
+    display: block;
+    padding: 15px 25px;
+    color: #4B5563;
+    text-decoration: none;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #F3F4F6;
+    transition: background-color 0.2s;
+}
+
+.sidebar-links li a:hover {
+    background-color: #F8F9FA;
+    color: #6CBE71;
+}
+
+.sidebar-links li a.texto-rojo {
+    color: #EF4444;
+}
+
+/* ========================================== */
+/* ESTILOS: BARRA SECUNDARIA (INDEX)          */
+/* ========================================== */
+
+.barra-secundaria-index {
+    background-color: #eee; /* El tono de gris exacto de tu imagen */
+    display: flex;
+    justify-content: space-between; /* Acomoda el primero a la izq, el último a la der, y centra el resto */
+    align-items: center;
+    padding: 12px 5%; /* El 5% alinea los textos con tu logo y tus botones superiores */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Hacemos que los enlaces se vean más gruesos como en tu diseño */
+.barra-secundaria-index .nav-link {
+    font-weight: 600;
+    color: #4B5563;
+    font-size: 0.95rem;
+}
+
+/* El estilo único para la palabra BLOG */
+.barra-secundaria-index .titulo-blog-nav {
+    text-transform: uppercase;
+    color: #1A3636;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* Ajuste para pantallas móviles */
+@media (max-width: 600px) {
+    .barra-secundaria-index {
+        padding: 12px 20px; 
+        overflow-x: auto; /* Permite deslizar si no caben en celular */
+        gap: 20px;
+        justify-content: flex-start;
+    }
 }

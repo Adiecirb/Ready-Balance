@@ -21,10 +21,13 @@
 
     <nav class="seccion-blog">
         <ul>
-            <li><a href="#">Blog</a></li>
-            <li><a href="#">Dietas</a></li>
-            <li><a href="#">Tips Fit</a></li>
-            <li><a href="#">Nutrición</a></li>
+            <!-- Barra secundaria de navegación en el Index -->
+        <div class="barra-secundaria-index">
+            <a href="./blogs.html" class="nav-link titulo-blog-nav">BLOG</a>
+            <a href="./blogs.html?filtro=dietas" class="nav-link">Dietas</a>
+            <a href="./blogs.html?filtro=tips" class="nav-link">Tips Fit</a>
+            <a href="./blogs.html?filtro=nutricion" class="nav-link">Nutrición</a>
+        </div>
         </ul>
     </nav>
 
@@ -32,7 +35,7 @@
         <div class="texto-iniciar">
             <h2>Transforma tu cuerpo con nutrición de precisión</h2>
             <p>Descubre planes de alimentación personalizados para personas fit. Alcanza tus objetivos de manera inteligente y sin complicaciones.</p>
-            <button class="btn-accion-grande">START NOW</button>
+            <button id="btn-abrir-cuestionario" class="btn-accion-grande">START NOW</button>
         </div>
         <div class="imagen-iniciar">
             <img src="/img/celular.png" alt="App Ready Balance en celular" class="img-hero">
@@ -49,7 +52,7 @@
             <div class="resena">
                 <span class="estrellas-pequenas">⭐⭐⭐⭐⭐</span>
                 <p>"La mejor plataforma para calcular mis macros."</p>
-                <small>- Briseira </small>
+                <small>- Briceida </small>
             </div>
             <div class="resena">
                 <span class="estrellas-pequenas">⭐⭐⭐⭐⭐</span>
@@ -75,19 +78,44 @@
     </section>
 
     <section class="instrucciones">
-        <h2>Instrucciones</h2>
-        <div class="pasos">
-            <p>1. Crea tu cuenta y registra tus datos corporales.</p>
-            <p>2. Define si quieres volumen, definición o mantenimiento.</p>
-            <p>3. Recibe tu plan nutricional generado matemáticamente.</p>
+        <h2>Un método revolucionario para tu nutrición</h2>
+        
+        <div class="pasos-grid">
+            
+            <div class="paso-item">
+                <div class="img-contenedor">
+                    <img src="./image/paso1.png" alt="Crea tu cuenta">
+                </div>
+                <h3>Crea tu cuenta</h3>
+            </div>
+
+            <div class="paso-item">
+                <div class="img-contenedor">
+                    <img src="./image/paso2.png" alt="Define tu objetivo">
+                </div>
+                <h3>Define tu objetivo</h3>
+            </div>
+
+            <div class="paso-item">
+                <div class="img-contenedor">
+                    <img src="./image/paso3.png" alt="Recibe tu plan">
+                </div>
+                <h3>Recibe tu plan</h3>
+            </div>
+
         </div>
+
+        <p class="instrucciones-desc">
+            Registra tus datos corporales, elige si quieres volumen, definición o mantenimiento, y obtén un plan nutricional generado matemáticamente en segundos.
+        </p>
     </section>
 
+    
     <section class="resultados-metas">
         
         <div class="columna-imagenes izquierda">
-            <img src="./image/resultado1.jpg" alt="Persona fit 1" class="img-arriba">
-            <img src="./image/resultado2.jpg" alt="Persona fit 2" class="img-abajo">
+            <img src="./img/personas/chico.png" alt="Persona fit 1" class="img-arriba">
+            <img src="./img/personas/señora.png" alt="Persona fit 2" class="img-abajo">
         </div>
 
         <div class="texto-resultados-centro">
@@ -123,8 +151,8 @@
         </div>
 
         <div class="columna-imagenes derecha">
-            <img src="./image/resultado3.jpg" alt="Persona fit 3" class="img-arriba">
-            <img src="./image/resultado4.jpg" alt="Persona fit 4" class="img-abajo">
+            <img src="./img/personas/chica.png" alt="Persona fit 3" class="img-arriba">
+            <img src="./img/personas/señor.png" alt="Persona fit 4" class="img-abajo">
         </div>
 
     </section>
@@ -137,47 +165,360 @@
         <div class="texto-descarga">
             <h2>Próximamente en tu celular</h2>
             <p>Mantente atento. Muy pronto lanzaremos nuestra aplicación móvil para que lleves tu dieta a todas partes de manera inteligente.</p>
-            </div>
+        </div>
     </section>
 
-// Dar movimiento
-<script>
-        const slides = document.querySelectorAll('.slide-experiencia');
-        const puntos = document.querySelectorAll('.punto');
-        let slideActual = 0;
+    <section id="vista-cuestionario" class="vista-onboarding" style="display: none;">
+        <div class="tarjeta-onboarding">
+            
+            <button id="btn-cerrar-cuestionario" class="btn-cerrar">✕</button>
 
-        // Función para cambiar de diapositiva
-        function mostrarSlide(indice) {
-            // 1. Quitar la clase 'activo' a todos los slides y puntos
-            slides.forEach(slide => slide.classList.remove('activo'));
-            puntos.forEach(punto => punto.classList.remove('activo'));
+            <div class="onboarding-header">
+                <img src="./img/logo.png" alt="Ready Balance Logo" class="logo-pequeno">
+                <span class="nombre-app">Ready Balance</span>
+            </div>
 
-            // 2. Asignar la clase 'activo' solo al que corresponde
-            slideActual = indice;
-            slides[slideActual].classList.add('activo');
-            puntos[slideActual].classList.add('activo');
-        }
+             <div class="paso-cuestionario activo" id="q-privacidad">
+                <div class="ilustracion-top">
+                    <img src="./img/cuestionarios/privado.png" alt="Privacidad">
+                </div>
+                <h2>Tu privacidad importa</h2>
+                
+                <ul class="lista-privacidad">
+                    <li>
+                        <span class="icono-lista">🍎</span>
+                        <p>Tus datos personales solo se utilizan para ofrecerte consejos nutricionales personalizados.</p>
+                    </li>
+                    <li>
+                        <span class="icono-lista">🔒</span>
+                        <p>No compartimos tus datos personales con terceros.</p>
+                    </li>
+                    <li>
+                        <span class="icono-lista">🎭</span>
+                        <p>Tus datos quedan entre tú y nosotros.</p>
+                    </li>
+                </ul>
 
-        // Función para avanzar automáticamente
-        function siguienteSlide() {
-            let nuevoIndice = slideActual + 1;
-            // Si llega al final, regresa a la primera diapositiva (0)
-            if (nuevoIndice >= slides.length) {
-                nuevoIndice = 0; 
-            }
-            mostrarSlide(nuevoIndice);
-        }
+                <div class="enlaces-legales">
+                    <a href="#">Términos y condiciones</a> · <a href="#">Política de privacidad</a>
+                </div>
 
-        // Cambiar automáticamente cada 5 segundos (5000 milisegundos)
-        setInterval(siguienteSlide, 5000);
+                <label class="checkbox-personalizado">
+                    <input type="checkbox" id="check-privacidad">
+                    <span class="checkmark"></span>
+                    He leído y aceptado los términos y condiciones y la política de privacidad
+                </label>
 
-        // Hacer que los usuarios puedan hacer clic en los puntos
-        puntos.forEach((punto, index) => {
-            punto.addEventListener('click', () => {
-                mostrarSlide(index);
-            });
-        });
-    </script>
+                <button class="btn-siguiente-oscuro">Continuar</button>
+            </div>
+
+            <div class="paso-cuestionario" id="q-bienvenida">
+                <div class="ilustracion-top">
+                    <img src="./img/cuestionarios/frutas.png" alt="Bienvenida">
+                </div>
+                <h2>Bienvenido</h2>
+                <p class="pregunta-principal">Entonces, ¿qué te trae por aquí?</p>
+                
+                <div class="opciones-contenedor">
+                    <button class="btn-opcion">Pérdida de peso</button>
+                    <button class="btn-opcion">Ganar músculo y perder grasa</button>
+                    <button class="btn-opcion">Ganar músculo, perder grasa es secundario</button>
+                    <button class="btn-opcion">Comer más sano sin perder peso</button>
+                </div>
+                <div class="controles-inferiores">
+                    <button class="btn-atras">←</button>
+                    <button class="btn-siguiente-oscuro">Siguiente</button>
+                </div>
+            </div>
+
+           <div class="paso-cuestionario" id="q-info-dieta">
+                <h2>No existe una dieta única para todos.</h2>
+                
+                <div class="ilustracion-central">
+                    <img src="./img/cuestionarios/grafica.png" alt="Gráfica de resultados">
+                </div>
+                
+                <p class="texto-informativo">Ready Balance encuentra lo que funciona para ti para alcanzar tus objetivos personales.</p>
+                
+                <div class="controles-inferiores">
+                    <button class="btn-atras">←</button>
+                    <button class="btn-siguiente-oscuro">Siguiente</button>
+                </div>
+            </div>
+
+
+            <div class="paso-cuestionario" id="q-crear-cuenta">
+                <div class="ilustracion-top">
+                    <img src="./img/cuestionarios/cuenta.png" alt="Crea tu cuenta">
+                </div>
+                
+                <h2>Crea tu cuenta</h2>
+                <p class="pregunta-principal">Registra tu cuenta para guardar tus ajustes.</p>
+                
+                <form id="form-crear-cuenta" class="formulario-registro">
+                    
+                    <div class="grupo-input-redondo">
+                        <input type="text" id="reg-nombre" placeholder="Nombre de usuario" required>
+                    </div>
+                    
+                    <div class="grupo-input-redondo">
+                        <input type="email" id="reg-correo" placeholder="Correo electrónico" required>
+                    </div>
+                    
+                    <div class="grupo-input-redondo contenedor-password">
+                        <input type="password" id="reg-pass" placeholder="Contraseña" required>
+                        <button type="button" class="btn-ver-pass" id="btn-toggle-pass">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="#666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <button type="button" id="btn-registrate" class="btn-registro-submit">Regístrate</button>
+                    
+                    <p class="texto-terminos-registro">
+                        Al continuar, aceptas Ready Balance's <br>
+                        <a href="#">Términos y Condiciones</a> y <a href="#">Política de Privacidad</a>
+                    </p>
+
+                </form>
+            </div>
+
+            <div class="paso-cuestionario" id="q-conocer-usuario">
+                <h2>Vamos a conocerte</h2>
+
+                <div class="bloque-pregunta" id="bloque-genero">
+                    <p class="pregunta-principal alinear-izq">¿Cuál es tu género?</p>
+                    <div class="opciones-pildora">
+                        <button type="button" class="btn-pildora">Masculino</button>
+                        <button type="button" class="btn-pildora">Femenino</button>
+                    </div>
+                </div>
+
+                <div class="bloque-pregunta oculto" id="bloque-edad">
+                    <p class="pregunta-principal alinear-izq">¿Cuál es tu edad?</p>
+                    <div class="input-con-unidad">
+                        <input type="number" id="input-edad" placeholder="Ej. 25" min="15" max="100">
+                        <span class="unidad-pill">años</span>
+                    </div>
+                </div>
+
+                <div class="bloque-pregunta oculto" id="bloque-peso">
+                    <p class="pregunta-principal alinear-izq">¿Cuál es tu peso actual?</p>
+                    <div class="input-con-unidad">
+                        <input type="number" id="input-peso" placeholder="Ej. 70" step="0.1">
+                        <span class="unidad-pill">kg</span>
+                    </div>
+                </div>
+
+                <div class="bloque-pregunta oculto" id="bloque-estatura">
+                    <p class="pregunta-principal alinear-izq">¿Cuál es tu estatura?</p>
+                    <div class="input-con-unidad">
+                        <input type="number" id="input-estatura" placeholder="Ej. 175">
+                        <span class="unidad-pill">cm</span>
+                    </div>
+                </div>
+
+                <div class="controles-inferiores">
+                    <button class="btn-atras">←</button>
+                    <div style="flex: 1;"></div> 
+                    <button class="btn-siguiente-oscuro oculto" id="btn-siguiente-conocer">Siguiente</button>
+                </div>
+            </div>
+
+            <div class="paso-cuestionario" id="q-meta-ritmo">
+                
+                <h2 id="titulo-meta-ritmo" style="text-align: left; font-size: 1.8rem; line-height: 1.3; margin-bottom: 30px;">
+                    ¡Así que estás aquí para ganar músculo y perder grasa!
+                </h2>
+
+                <div class="bloque-pregunta">
+                    <p class="pregunta-principal alinear-izq">¿Cuál sería tu peso ideal?</p>
+                    <div class="input-con-unidad">
+                        <input type="number" id="input-peso-ideal" placeholder="Ej. 65" step="0.1">
+                        <span class="unidad-pill">kg</span>
+                    </div>
+                </div>
+
+                <div class="bloque-pregunta" style="margin-top: 40px;">
+                    <p class="pregunta-principal alinear-izq">¿A qué ritmo quieres alcanzar tu objetivo?</p>
+                    
+                    <div class="contenedor-slider">
+                        <div class="slider-iconos">
+                            <span class="icono-ritmo" id="icono-lento">👣</span> 
+                            <span class="icono-ritmo" id="icono-medio">🚲</span>
+                            <span class="icono-ritmo" id="icono-rapido">🚀</span>
+                        </div>
+                        
+                        <input type="range" min="1" max="3" value="2" class="slider-ritmo" id="slider-ritmo">
+                        
+                        <div class="slider-textos">
+                            <span>Despacio pero<br>seguro</span>
+                            <span>En el centro</span>
+                            <span>Tan rápido sea<br>posible</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controles-inferiores">
+                    <button class="btn-atras">←</button>
+                    <div style="flex: 1;"></div> 
+                    <button class="btn-siguiente-oscuro">Siguiente</button>
+                </div>
+            </div>
+
+            <div class="paso-cuestionario" id="q-restricciones">
+                
+                <div class="ilustracion-top">
+                    <img src="./img/cuestionarios/prohibido.png" alt="Restricciones alimentarias">
+                </div>
+                
+                <p class="pregunta-principal">¿Tienes alguna restricción dietética o alergia alimentaria?</p>
+                
+                <div class="opciones-mitad">
+                    <button type="button" class="btn-opcion-mitad">Sí</button>
+                    <button type="button" class="btn-opcion-mitad">No</button>
+                </div>
+
+                <div id="caja-alergia" class="bloque-pregunta oculto" style="margin-top: 30px;">
+                    <p class="pregunta-principal alinear-izq" style="margin-bottom: 10px; font-size: 1.05rem;">¿A qué alimento o condimento?</p>
+                    
+                    <div class="grupo-input-redondo">
+                        <input type="text" id="input-alergia" placeholder="Ej. Nuez, mariscos, lácteos...">
+                    </div>
+                </div>
+
+                <div class="controles-inferiores">
+                    <button class="btn-atras">←</button>
+                    <div style="flex: 1;"></div> 
+                    <button class="btn-siguiente-oscuro">Siguiente</button>
+                </div>
+            </div>
+
+
+            <div class="paso-cuestionario" id="q-condiciones">
+                <p class="pregunta-principal">¿Has tenido alguna de las siguientes condiciones?</p>
+                
+                <div class="opciones-contenedor checks-derecha">
+                    <label class="fila-opcion">
+                        <span>Diabetes</span>
+                        <input type="checkbox" name="condicion" value="diabetes">
+                    </label>
+                    <label class="fila-opcion">
+                        <span>Hipertensión o hipotensión</span>
+                        <input type="checkbox" name="condicion" value="hipertension">
+                    </label>
+                    <label class="fila-opcion">
+                        <span>Depresión</span>
+                        <input type="checkbox" name="condicion" value="depresion">
+                    </label>
+                    <label class="fila-opcion">
+                        <span>Enfermedad cardíaca</span>
+                        <input type="checkbox" name="condicion" value="cardiaca">
+                    </label>
+                     <label class="fila-opcion">
+                        <span>No he tenido alguna</span>
+                        <input type="checkbox" name="sin condicion" value="ninguna">
+                    </label>
+                </div>
+
+                <div class="controles-inferiores">
+                    <button class="btn-atras">←</button>
+                    <button class="btn-siguiente-oscuro">Siguiente</button>
+                </div>
+            </div>
+
+        
+            <div class="paso-cuestionario" id="q-comidas">
+                <p class="pregunta-principal">¿Cuántas veces al día sueles comer?</p>
+            
+                <div class="grid-comidas">
+                    
+                    <!-- Tarjeta 5 comidas -->
+                    <button type="button" class="btn-tarjeta-comida">
+                        <div class="emojis-comida">🍳 🍝 🍗 🍟 🥨</div>
+                        <span class="texto-comida">5 comidas</span>
+                    </button>
+                    
+                    <!-- Tarjeta 4 comidas -->
+                    <button type="button" class="btn-tarjeta-comida">
+                        <div class="emojis-comida">🍳 🍝 🍗 🍟</div>
+                        <span class="texto-comida">4 comidas</span>
+                    </button>
+                    
+                    <!-- Tarjeta 3 comidas -->
+                    <button type="button" class="btn-tarjeta-comida">
+                        <div class="emojis-comida">🍳 🍝 🍗</div>
+                        <span class="texto-comida">3 comidas</span>
+                    </button>
+                    
+                    <!-- Tarjeta 2 comidas -->
+                    <button type="button" class="btn-tarjeta-comida">
+                        <div class="emojis-comida">🍳 🍝</div>
+                        <span class="texto-comida">2 comidas</span>
+                    </button>
+                    
+                </div>
+
+                <div class="controles-inferiores">
+                    <button class="btn-atras">←</button>
+                    <div style="flex: 1;"></div> 
+                    <button class="btn-siguiente-oscuro">Siguiente</button>
+                </div>
+            </div>
+
+            <div class="paso-cuestionario" id="q-actividad">
+                <p class="pregunta-principal">¿Con qué frecuencia haces alguna actividad fisica?</p>
+                
+                <div class="opciones-contenedor">
+                    <button class="btn-opcion">6-7 días a la semana</button>
+                    <button class="btn-opcion">4-5 días a la semana</button>
+                    <button class="btn-opcion">2-3 días a la semana</button>
+                    <button class="btn-opcion">1 día a la semana</button>
+                    <button class="btn-opcion">No practico alguna actividad fisica</button>
+                </div>
+                <div class="controles-inferiores">
+                    <button class="btn-atras">←</button>
+                    <button class="btn-siguiente-oscuro">Siguiente</button>
+                </div>
+            </div>
+
+            <div class="paso-cuestionario" id="q-factor">
+                <p class="pregunta-principal">Para que tu programa personalizado tenga éxito, ¿Cuál es el factor más importante para ti?</p>
+                
+                <div class="opciones-contenedor">
+                    <button class="btn-opcion">Resultados rapidos</button>
+                    <button class="btn-opcion">Poder comer todo tipo de comida</button>
+                    <button class="btn-opcion">Sin entrenamiento</button>
+                    <button class="btn-opcion">Facil de seguir</button>
+                </div>
+                <div class="controles-inferiores">
+                    <button class="btn-atras">←</button>
+                    <button class="btn-siguiente-oscuro">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PANTALLA FINAL: CALCULANDO PLAN (Loading)  -->
+            <!-- ========================================== -->
+            <div class="paso-cuestionario" id="q-cargando">
+                <div class="contenedor-carga">
+                    <!-- El círculo animado -->
+                    <div class="spinner"></div>
+                    
+                    <h2 style="font-size: 1.6rem; margin-top: 30px; margin-bottom: 10px;">Calculando tu plan...</h2>
+                    <p style="color: #8C9BA5; font-size: 1.05rem; text-align: center;">Analizando tus objetivos y estructurando tus macros.</p>
+                </div>
+            </div>
+            
+
+
+
+        </div>
+    </section>
+
+   <script type="module" src="./js/main.js"></script>
 
 </body>
 </html>

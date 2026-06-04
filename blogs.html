@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogs - Ready Balance</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body class="fondo-dashboard">
+
+    <div class="overlay-menu" id="overlay-menu"></div>
+    <aside class="sidebar-menu" id="sidebar-menu">
+        <div class="sidebar-header">
+            <h3>Menú</h3>
+            <button id="btn-cerrar-menu" class="icono-btn">✕</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="./dashboard.html">Mis Planes</a></li>
+            <li><a href="./blogs.html">Blogs</a></li>
+            <li><a href="#">Ajustes</a></li>
+            <li><a href="./index.html" class="texto-rojo">Cerrar Sesión</a></li>
+        </ul>
+    </aside>
+
+    <nav class="navbar-dashboard">
+        <div class="nav-izq">
+            <button id="btn-menu-lateral" class="icono-btn">
+                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="nav-centro" id="menu-filtros-blog">
+            <a href="#" class="nav-link activo" data-filtro="todos">Blogs</a>
+            <a href="#" class="nav-link" data-filtro="nutricion">Nutrición</a>
+            <a href="#" class="nav-link" data-filtro="dietas">Dietas</a>
+            <a href="#" class="nav-link" data-filtro="tips">Tips Fit</a>
+        </div>
+        
+
+
+        <div class="nav-der">
+            <button class="icono-btn avatar-usuario">
+                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </button>
+        </div>
+    </nav>
+
+    <main class="contenedor-principal-planes">
+        <h2 class="titulo-comida" style="margin-bottom: 30px;">Artículos y Consejos</h2>
+        
+       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
+            
+            <div class="tarjeta-articulo" data-categoria="dietas" style="background: #FFF; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.3s ease;">
+                <div style="height: 160px; background-color: #EAF4F4; display: flex; align-items: center; justify-content: center; color: #6CBE71;">
+                    [Imagen Dieta]
+                </div>
+                <div style="padding: 20px;">
+                    <span style="background-color: #EAF4F4; color: #6CBE71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">Dietas</span>
+                    <h3 style="margin-top: 10px; color: #1A3636;">Los beneficios del ayuno intermitente</h3>
+                    <p style="color: #6B7280; font-size: 0.95rem; line-height: 1.5;">Descubre cómo esta práctica puede ayudarte a mejorar tu metabolismo...</p>
+                    <a href="#" style="color: #6CBE71; font-weight: bold; text-decoration: none;">Leer más →</a>
+                </div>
+            </div>
+
+            <div class="tarjeta-articulo" data-categoria="tips" style="background: #FFF; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.3s ease;">
+                <div style="height: 160px; background-color: #EAF4F4; display: flex; align-items: center; justify-content: center; color: #6CBE71;">
+                    [Imagen Ejercicio]
+                </div>
+                <div style="padding: 20px;">
+                    <span style="background-color: #EAF4F4; color: #6CBE71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">Tips Fit</span>
+                    <h3 style="margin-top: 10px; color: #1A3636;">Guía de suplementos deportivos</h3>
+                    <p style="color: #6B7280; font-size: 0.95rem; line-height: 1.5;">Todo lo que necesitas saber sobre proteína, creatina y pre-entrenos...</p>
+                    <a href="#" style="color: #6CBE71; font-weight: bold; text-decoration: none;">Leer más →</a>
+                </div>
+            </div>
+            
+            <div class="tarjeta-articulo" data-categoria="nutricion" style="background: #FFF; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.3s ease;">
+                <div style="height: 160px; background-color: #EAF4F4; display: flex; align-items: center; justify-content: center; color: #6CBE71;">
+                    [Imagen Frutas]
+                </div>
+                <div style="padding: 20px;">
+                    <span style="background-color: #EAF4F4; color: #6CBE71; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">Nutrición</span>
+                    <h3 style="margin-top: 10px; color: #1A3636;">Vitaminas esenciales para la energía</h3>
+                    <p style="color: #6B7280; font-size: 0.95rem; line-height: 1.5;">Conoce los micronutrientes que no pueden faltar en tus platos diarios...</p>
+                    <a href="#" style="color: #6CBE71; font-weight: bold; text-decoration: none;">Leer más →</a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>
