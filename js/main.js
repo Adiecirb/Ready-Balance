@@ -1,468 +1,428 @@
-console.log("App started");
-import { loadFoods } from './config.js';
-import { calculateCalories } from './utils.js';
+// main.js — Entrada principal, router por vista
 
-// ==========================================
-        // 1. LÓGICA DEL CARRUSEL DE EXPERIENCIAS
-        // ==========================================
-        const slides = document.querySelectorAll('.slide-experiencia');
-        const puntos = document.querySelectorAll('.punto');
-        let slideActual = 0;
+import { cargarDatos }         from './config.js';
+import { guardarCache, obtenerCache, limpiarCache } from './cache.js';
+import {
+  calcularTMB, calcularTDEE, calcularCaloriasObjetivo,
+  calcularMacros, calcularIMC, distribuirPorComidas,
+  textoANivelActividad, textoAObjetivo, sanitizar, formatearFecha
+} from './utils.js';
 
-        // Función para cambiar de diapositiva
-        function mostrarSlide(indice) {
-            // Quitar la clase 'activo' a todos los slides y puntos
-            slides.forEach(slide => slide.classList.remove('activo'));
-            puntos.forEach(punto => punto.classList.remove('activo'));
+// Detecta la página actual y lanza el módulo correspondiente
+const pagina = location.pathname.split('/').pop() || 'index.html';
 
-            // Asignar la clase 'activo' solo al que corresponde
-            slideActual = indice;
-            slides[slideActual].classList.add('activo');
-            puntos[slideActual].classList.add('activo');
-        }
+if (pagina === 'index.html' || pagina === '') initIndex();
+else if (pagina === 'dashboard.html')         initDashboard();
+else if (pagina === 'blogs.html')             initBlogs();
 
-        // Función para avanzar automáticamente
-        function siguienteSlide() {
-            let nuevoIndice = slideActual + 1;
-            // Si llega al final, regresa a la primera diapositiva (0)
-            if (nuevoIndice >= slides.length) {
-                nuevoIndice = 0; 
-            }
-            mostrarSlide(nuevoIndice);
-        }
+// ══════════════════════════════════════════════════════════
+// INDEX — Carrusel + cuestionario + onboarding
+// ══════════════════════════════════════════════════════════
 
-        // Cambiar automáticamente cada 5 segundos (5000 milisegundos)
-        setInterval(siguienteSlide, 5000);
+function initIndex() {
+  _initCarrusel();
+  _initCuestionario();
+  _initMenuLateral();
+}
 
-        // Hacer que los usuarios puedan hacer clic en los puntos
-        puntos.forEach((punto, index) => {
-            punto.addEventListener('click', () => {
-                mostrarSlide(index);
-            });
-        });
+function _initCarrusel() {
+  const slides = document.querySelectorAll('.slide-experiencia');
+  const puntos  = document.querySelectorAll('.punto');
+  if (!slides.length) return;
+  let actual = 0;
 
-        // ==========================================
-        // 2. LÓGICA PARA ABRIR Y CERRAR EL CUESTIONARIO
-        // ==========================================
-        const btnStartNow = document.getElementById('btn-abrir-cuestionario');
-        const vistaCuestionario = document.getElementById('vista-cuestionario');
-        const btnCerrar = document.getElementById('btn-cerrar-cuestionario');
+  const mostrar = i => {
+    slides.forEach(s => s.classList.remove('activo'));
+    puntos.forEach(p => p.classList.remove('activo'));
+    actual = i;
+    slides[actual].classList.add('activo');
+    puntos[actual].classList.add('activo');
+  };
 
-        // Abrir cuestionario
-        if(btnStartNow && vistaCuestionario) {
-            btnStartNow.addEventListener('click', () => {
-                vistaCuestionario.style.display = 'flex';
-                document.body.style.overflow = 'hidden'; // Oculta el scroll del fondo
-            });
-        }
+  setInterval(() => mostrar((actual + 1) % slides.length), 5000);
+  puntos.forEach((p, i) => p.addEventListener('click', () => mostrar(i)));
+}
 
-        // Cerrar cuestionario
-        if(btnCerrar) {
-            btnCerrar.addEventListener('click', () => {
-                vistaCuestionario.style.display = 'none';
-                document.body.style.overflow = 'auto'; // Devuelve el scroll al fondo
-            });
-        }
+function _initCuestionario() {
+  const btnAbrir  = document.getElementById('btn-abrir-cuestionario');
+  const vista     = document.getElementById('vista-cuestionario');
+  const btnCerrar = document.getElementById('btn-cerrar-cuestionario');
+  if (!vista) return;
 
-        // ==========================================
-        // 3. LÓGICA DE NAVEGACIÓN DENTRO DEL CUESTIONARIO
-        // ==========================================
-        const pasosCuestionario = Array.from(document.querySelectorAll('.paso-cuestionario'));
-        let pasoActualCuestionario = 0;
+  const pasos = Array.from(document.querySelectorAll('.paso-cuestionario'));
+  let pasoActual = 0;
+  // Estado acumulado del cuestionario
+  const estado = {};
 
-        // Función maestra para cambiar de pantalla en el cuestionario
-        function irAPasoCuestionario(indice) {
-            pasosCuestionario.forEach(paso => paso.classList.remove('activo'));
-            pasoActualCuestionario = indice;
-            pasosCuestionario[pasoActualCuestionario].classList.add('activo');
-        }
+  const irA = i => {
+    pasos.forEach(p => p.classList.remove('activo'));
+    pasoActual = i;
+    pasos[pasoActual].classList.add('activo');
+  };
 
-        // Botones de opción (ej. Paso 1: "Pérdida de peso")
-        // Botones de opción (ej. Paso 1: "Pérdida de peso")
-        const opcionesBienvenida = document.querySelectorAll('#q-bienvenida .btn-opcion');
-        const tituloMetaRitmo = document.getElementById('titulo-meta-ritmo'); // Buscamos el título de la otra pantalla
+  btnAbrir?.addEventListener('click', () => {
+    vista.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    irA(0);
+  });
+  btnCerrar?.addEventListener('click', () => {
+    vista.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  });
 
-        opcionesBienvenida.forEach(boton => {
-            boton.addEventListener('click', function() {
-                // 1. Quitar la selección a todos y marcar el actual
-                opcionesBienvenida.forEach(b => b.classList.remove('seleccionado'));
-                this.classList.add('seleccionado');
+  // Botones siguiente / atrás globales
+  document.querySelectorAll('.btn-siguiente-oscuro').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (pasoActual < pasos.length - 1) irA(pasoActual + 1);
+    });
+  });
+  document.querySelectorAll('.btn-atras').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (pasoActual > 0) irA(pasoActual - 1);
+    });
+  });
 
-                // 2. Leer qué botón presionó el usuario
-                const opcionTexto = this.innerText.trim();
+  // Opción de bienvenida → persiste objetivo
+  document.querySelectorAll('#q-bienvenida .btn-opcion').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#q-bienvenida .btn-opcion')
+        .forEach(b => b.classList.remove('seleccionado'));
+      this.classList.add('seleccionado');
+      estado.objetivoTexto = this.innerText.trim();
+      const titulo = document.getElementById('titulo-meta-ritmo');
+      if (titulo) {
+        const map = {
+          'Pérdida de peso':                    '¡Así que estás aquí para perder peso!',
+          'Ganar músculo y perder grasa':        '¡Así que estás aquí para ganar músculo y perder grasa!',
+          'Ganar músculo, perder grasa es secundario': '¡Tu prioridad es ganar masa muscular a tope!',
+          'Comer más sano sin perder peso':      '¡Estás aquí para comer más sano y mantenerte!'
+        };
+        titulo.innerText = map[estado.objetivoTexto] ?? estado.objetivoTexto;
+      }
+    });
+  });
 
-                // 3. Crear el mensaje personalizado según la opción
-                let mensajePersonalizado = "";
-                
-                if (opcionTexto === "Pérdida de peso") {
-                    mensajePersonalizado = "¡Así que estás aquí para perder peso!";
-                } else if (opcionTexto === "Ganar músculo y perder grasa") {
-                    mensajePersonalizado = "¡Así que estás aquí para ganar músculo y perder grasa!";
-                } else if (opcionTexto === "Ganar músculo, perder grasa es secundario") {
-                    mensajePersonalizado = "¡Así que tu prioridad es ganar masa muscular a tope!";
-                } else if (opcionTexto === "Comer más sano sin perder peso") {
-                    mensajePersonalizado = "¡Así que estás aquí para comer más sano y mantenerte!";
-                }
+  // Revelación progresiva en "Vamos a conocerte"
+  const botonesGenero = document.querySelectorAll('#bloque-genero .btn-pildora');
+  const bloqueEdad    = document.getElementById('bloque-edad');
+  const bloquePeso    = document.getElementById('bloque-peso');
+  const bloqueEstatura = document.getElementById('bloque-estatura');
+  const btnSigConocer = document.getElementById('btn-siguiente-conocer');
 
-                // 4. Inyectar ese nuevo mensaje en la pantalla de "Meta y Ritmo"
-                if (tituloMetaRitmo) {
-                    tituloMetaRitmo.innerText = mensajePersonalizado;
-                }
-            });
-        });
+  botonesGenero.forEach(btn => {
+    btn.addEventListener('click', function () {
+      botonesGenero.forEach(b => b.classList.remove('seleccionado'));
+      this.classList.add('seleccionado');
+      estado.genero = this.innerText.trim().toLowerCase();
+      _revelar(bloqueEdad);
+    });
+  });
 
-        // Botones de "Siguiente / Continuar"
-        const botonesSiguiente = document.querySelectorAll('.btn-siguiente-oscuro');
-        botonesSiguiente.forEach(boton => {
-            boton.addEventListener('click', () => {
-                if(pasoActualCuestionario < pasosCuestionario.length - 1) {
-                    irAPasoCuestionario(pasoActualCuestionario + 1);
-                }
-            });
-        });
+  document.getElementById('input-edad')?.addEventListener('input', function () {
+    if (this.value) { estado.edad = +this.value; _revelar(bloquePeso); }
+  });
+  document.getElementById('input-peso')?.addEventListener('input', function () {
+    if (this.value) { estado.peso = +this.value; _revelar(bloqueEstatura); }
+  });
+  document.getElementById('input-estatura')?.addEventListener('input', function () {
+    if (this.value) {
+      estado.estatura = +this.value;
+      btnSigConocer?.classList.remove('oculto');
+      btnSigConocer?.classList.add('visible');
+    } else {
+      btnSigConocer?.classList.add('oculto');
+      btnSigConocer?.classList.remove('visible');
+    }
+  });
 
-        // Botones de "Atrás"
-        const botonesAtras = document.querySelectorAll('.btn-atras');
-        botonesAtras.forEach(boton => {
-            boton.addEventListener('click', () => {
-                if(pasoActualCuestionario > 0) {
-                    irAPasoCuestionario(pasoActualCuestionario - 1);
-                }
-            });
-        });
+  // Slider de ritmo
+  const slider = document.getElementById('slider-ritmo');
+  if (slider) {
+    const iconos = document.querySelectorAll('.icono-ritmo');
+    const actualizar = () => {
+      const v   = +slider.value;
+      const pct = ((v - 1) / 2) * 100;
+      slider.style.background = `linear-gradient(to right,#F09A59 ${pct}%,#EEEEEE ${pct}%)`;
+      iconos.forEach((ic, idx) => ic.classList.toggle('activo', idx === v - 1));
+      estado.ritmo = v;
+    };
+    slider.addEventListener('input', actualizar);
+    actualizar();
+  }
 
-        // ==========================================
-        // 4. LÓGICA DE LA PANTALLA DE REGISTRO (UI)
-        // ==========================================
+  // Sí/No restricciones
+  document.querySelectorAll('#q-restricciones .btn-opcion-mitad').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#q-restricciones .btn-opcion-mitad')
+        .forEach(b => b.classList.remove('seleccionado'));
+      this.classList.add('seleccionado');
+      const caja = document.getElementById('caja-alergia');
+      const si   = this.innerText.trim() === 'Sí';
+      caja?.classList.toggle('oculto',  !si);
+      caja?.classList.toggle('visible',  si);
+      if (!si && document.getElementById('input-alergia'))
+        document.getElementById('input-alergia').value = '';
+    });
+  });
 
-        // A. Lógica para mostrar/ocultar contraseña
-        const btnTogglePass = document.getElementById('btn-toggle-pass');
-        const inputPass = document.getElementById('reg-pass');
+  // Tarjetas de comidas
+  document.querySelectorAll('#q-comidas .btn-tarjeta-comida').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#q-comidas .btn-tarjeta-comida')
+        .forEach(t => t.classList.remove('seleccionado'));
+      this.classList.add('seleccionado');
+      estado.nComidas = +this.querySelector('.texto-comida').innerText;
+    });
+  });
 
-        if(btnTogglePass && inputPass) {
-            btnTogglePass.addEventListener('click', () => {
-                // Si está como texto oculto (password), cámbialo a texto visible
-                if (inputPass.type === 'password') {
-                    inputPass.type = 'text';
-                    // Opcional: Podrías cambiar el color del icono aquí para indicar que está visible
-                } else {
-                    inputPass.type = 'password';
-                }
-            });
-        }
+  // Actividad física
+  document.querySelectorAll('#q-actividad .btn-opcion').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#q-actividad .btn-opcion')
+        .forEach(b => b.classList.remove('seleccionado'));
+      this.classList.add('seleccionado');
+      estado.actividadTexto = this.innerText.trim();
+    });
+  });
 
-        // B. Simulación del Botón de Registro 
-        const btnRegistrate = document.getElementById('btn-registrate');
-        
-        if(btnRegistrate) {
-            btnRegistrate.addEventListener('click', () => {
-                const correoInput = document.getElementById('reg-correo').value;
-                
-                // --- AQUÍ EMPIEZA LA TAREA DE PERSONA 2 ---
-                // Simulación: Si el correo es "test@test.com", fingimos que ya existe
-                if(correoInput === 'test@test.com') {
-                    alert("Este correo ya está registrado. Por favor, inicia sesión.");
-                    // Aquí Persona 2 pondrá el código para redirigir a la vista de Iniciar Sesión
-                } else {
-                    // Si es un correo nuevo, pasamos al siguiente paso del cuestionario
-                    if(pasoActualCuestionario < pasosCuestionario.length - 1) {
-                        irAPasoCuestionario(pasoActualCuestionario + 1);
-                    }
-                }
-                // --- AQUÍ TERMINA LA TAREA DE PERSONA 2 ---
-            });
-        }
+  // Factor éxito
+  document.querySelectorAll('#q-factor .btn-opcion').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#q-factor .btn-opcion')
+        .forEach(b => b.classList.remove('seleccionado'));
+      this.classList.add('seleccionado');
+    });
+  });
 
-        // ==========================================
-        // 5. LÓGICA DE REVELACIÓN PROGRESIVA (Vamos a conocerte)
-        // ==========================================
+  // Pantalla de carga → calcula y redirige
+  document.addEventListener('click', e => {
+    const btnSig = e.target.closest('.btn-siguiente-oscuro');
+    if (!btnSig || btnSig.disabled) return;
+    const pantallaActual = btnSig.closest('.paso-cuestionario');
+    const siguiente = pantallaActual?.nextElementSibling;
+    if (siguiente?.id === 'q-cargando') {
+      _calcularYGuardar(estado);
+      setTimeout(() => { location.href = './dashboard.html'; }, 3200);
+    }
+  });
 
-        const botonesGenero = document.querySelectorAll('#bloque-genero .btn-pildora');
-        const bloqueEdad = document.getElementById('bloque-edad');
-        const inputEdad = document.getElementById('input-edad');
-        const bloquePeso = document.getElementById('bloque-peso');
-        const inputPeso = document.getElementById('input-peso');
-        const bloqueEstatura = document.getElementById('bloque-estatura');
-        const inputEstatura = document.getElementById('input-estatura');
-        const btnSiguienteConocer = document.getElementById('btn-siguiente-conocer');
+  // Registro simulado (FASE 3 conectará Firebase aquí)
+  document.getElementById('btn-registrate')?.addEventListener('click', () => {
+    const correo = document.getElementById('reg-correo')?.value;
+    const nombre = document.getElementById('reg-nombre')?.value;
+    const pass   = document.getElementById('reg-pass')?.value;
+    if (!correo || !nombre || !pass) {
+      alert('Por favor completa todos los campos.');
+      return;
+    }
+    estado.correo = correo;
+    estado.nombre = nombre;
+    if (pasoActual < pasos.length - 1) irA(pasoActual + 1);
+  });
 
-        // Al seleccionar género, mostramos la edad
-        botonesGenero.forEach(boton => {
-            boton.addEventListener('click', function() {
-                // Quitamos la selección anterior y marcamos el actual
-                botonesGenero.forEach(b => b.classList.remove('seleccionado'));
-                this.classList.add('seleccionado');
-                
-                // Revelamos la siguiente pregunta
-                if(bloqueEdad) {
-                    bloqueEdad.classList.remove('oculto');
-                    bloqueEdad.classList.add('visible');
-                }
-            });
-        });
+  // Toggle visibilidad contraseña
+  document.getElementById('btn-toggle-pass')?.addEventListener('click', () => {
+    const inp = document.getElementById('reg-pass');
+    if (inp) inp.type = inp.type === 'password' ? 'text' : 'password';
+  });
+}
 
-        // Al escribir la edad, mostramos el peso
-        if(inputEdad) {
-            inputEdad.addEventListener('input', function() {
-                if(this.value.length > 0) {
-                    bloquePeso.classList.remove('oculto');
-                    bloquePeso.classList.add('visible');
-                }
-            });
-        }
+// Calcula plan completo y lo persiste en caché
+function _calcularYGuardar(est) {
+  try {
+    const tmb      = calcularTMB(est);
+    const actividad = textoANivelActividad(est.actividadTexto);
+    const objetivo  = textoAObjetivo(est.objetivoTexto);
+    const tdee     = calcularTDEE(tmb, actividad);
+    const calObj   = calcularCaloriasObjetivo(tdee, objetivo);
+    const macros   = calcularMacros(calObj, objetivo);
+    const imc      = calcularIMC(est.peso, est.estatura);
+    const comidas  = distribuirPorComidas(macros, est.nComidas ?? 3);
 
-        // Al escribir el peso, mostramos la estatura
-        if(inputPeso) {
-            inputPeso.addEventListener('input', function() {
-                if(this.value.length > 0) {
-                    bloqueEstatura.classList.remove('oculto');
-                    bloqueEstatura.classList.add('visible');
-                }
-            });
-        }
+    const perfil = {
+      ...est,
+      tmb, tdee, calObj, macros, imc,
+      comidas, actividad, objetivo,
+      fechaCreacion: new Date().toISOString()
+    };
+    guardarCache('perfil_usuario', perfil);
+    console.log('Perfil calculado:', perfil);
+  } catch (err) {
+    console.error('Error calculando perfil:', err);
+  }
+}
 
-        // Al escribir la estatura, se muestra el botón Siguiente
-        if(inputEstatura) {
-            inputEstatura.addEventListener('input', function() {
-                if(this.value.length > 0) {
-                    btnSiguienteConocer.classList.remove('oculto');
-                    btnSiguienteConocer.classList.add('visible');
-                } else {
-                    // Si borra la estatura, volvemos a ocultar el botón
-                    btnSiguienteConocer.classList.remove('visible');
-                    btnSiguienteConocer.classList.add('oculto');
-                }
-            });
-        }
+function _revelar(el) {
+  el?.classList.remove('oculto');
+  el?.classList.add('visible');
+}
 
-        // ==========================================
-        // 6. LÓGICA DE INTERFAZ: SLIDER DE RITMO
-        // ==========================================
-        
-        const sliderRitmo = document.getElementById('slider-ritmo');
-        const iconosRitmo = document.querySelectorAll('.icono-ritmo');
+// ══════════════════════════════════════════════════════════
+// DASHBOARD — Renderiza plan nutricional desde caché
+// ══════════════════════════════════════════════════════════
 
-        if(sliderRitmo) {
-            // Esta función pinta la barra y enciende los íconos
-            const actualizarSlider = () => {
-                const valor = parseInt(sliderRitmo.value); // Será 1, 2 o 3
-                
-                // 1. Pintar la barra con un gradiente (Naranja a la izquierda, Gris a la derecha)
-                // Usamos matemáticas simples para saber el porcentaje: (valor - min) / (max - min) * 100
-                const porcentaje = ((valor - 1) / (3 - 1)) * 100;
-                sliderRitmo.style.background = `linear-gradient(to right, #F09A59 ${porcentaje}%, #EEEEEE ${porcentaje}%)`;
+async function initDashboard() {
+  _initMenuLateral();
+  _initFiltrosBlog();
 
-                // 2. Apagar todos los iconos y encender solo el seleccionado
-                iconosRitmo.forEach((icono, index) => {
-                    // Restamos 1 porque el valor empieza en 1, pero los index en JavaScript empiezan en 0
-                    if(index === (valor - 1)) {
-                        icono.classList.add('activo');
-                    } else {
-                        icono.classList.remove('activo');
-                    }
-                });
-            };
+  const perfil = obtenerCache('perfil_usuario');
 
-            // Que se ejecute cada vez que el usuario desliza la barra
-            sliderRitmo.addEventListener('input', actualizarSlider);
-            
-            // Que se ejecute una vez al cargar la página para que inicie pintado en el centro
-            actualizarSlider(); 
-        }
+  if (!perfil) {
+    _renderSinPerfil();
+    return;
+  }
 
-        // ==========================================
-        // 7. LÓGICA DE INTERFAZ: BOTONES SÍ / NO Y CONDICIONAL
-        // ==========================================
-        
-        const opcionesRestricciones = document.querySelectorAll('#q-restricciones .btn-opcion-mitad');
-        const cajaAlergia = document.getElementById('caja-alergia');
-        const inputAlergia = document.getElementById('input-alergia');
-        
-        opcionesRestricciones.forEach(boton => {
-            boton.addEventListener('click', function() {
-                // Quitar la selección a ambos y marcar el presionado
-                opcionesRestricciones.forEach(b => b.classList.remove('seleccionado'));
-                this.classList.add('seleccionado');
+  _renderResumen(perfil);
+  await _renderComidas(perfil);
+}
 
-                // Lógica condicional para revelar la pregunta
-                if (this.innerText.trim() === 'Sí') {
-                    // Si elige Sí, revelamos la caja con nuestra animación
-                    cajaAlergia.classList.remove('oculto');
-                    cajaAlergia.classList.add('visible');
-                } else {
-                    // Si elige No, la volvemos a ocultar
-                    cajaAlergia.classList.remove('visible');
-                    cajaAlergia.classList.add('oculto');
-                    
-                    // Detalle de calidad: Limpiamos la caja por si había escrito algo y luego se arrepintió
-                    if(inputAlergia) inputAlergia.value = ''; 
-                }
-            });
-        });
+function _renderSinPerfil() {
+  const main = document.querySelector('.contenedor-principal-planes');
+  if (!main) return;
+  main.innerHTML = `
+    <div style="text-align:center;padding:60px 20px;">
+      <p style="font-size:1.2rem;color:#8C9BA5;margin-bottom:20px;">
+        Aún no tienes un plan generado.
+      </p>
+      <a href="./index.html" class="btn-primario" style="
+        display:inline-block;padding:14px 32px;background:#6CBE71;
+        color:#fff;border-radius:30px;text-decoration:none;font-weight:bold;">
+        Crear mi plan
+      </a>
+    </div>`;
+}
 
-        // ==========================================
-        // 8. LÓGICA DE INTERFAZ: TARJETAS DE COMIDAS
-        // ==========================================
-        
-        const tarjetasComidas = document.querySelectorAll('#q-comidas .btn-tarjeta-comida');
-        
-        tarjetasComidas.forEach(tarjeta => {
-            tarjeta.addEventListener('click', function() {
-                // Quitar la selección a todas las tarjetas
-                tarjetasComidas.forEach(t => t.classList.remove('seleccionado'));
-                
-                // Aplicar la selección únicamente a la tarjeta clickeada
-                this.classList.add('seleccionado');
-            });
-        });
+function _renderResumen(perfil) {
+  // Tarjeta de resumen nutricional en la parte superior del dashboard
+  const main = document.querySelector('.contenedor-principal-planes');
+  if (!main || !perfil.macros) return;
 
-        // ==========================================
-        // 9. LÓGICA DE INTERFAZ: ACTIVIDAD Y ÉXITO
-        // ==========================================
-        
-        // A. Selección para "Actividad Física"
-        const opcionesActividad = document.querySelectorAll('#q-actividad .btn-opcion');
-        
-        opcionesActividad.forEach(boton => {
-            boton.addEventListener('click', function() {
-                opcionesActividad.forEach(b => b.classList.remove('seleccionado'));
-                this.classList.add('seleccionado');
-            });
-        });
+  const resumen = document.createElement('section');
+  resumen.className = 'bloque-comida';
+  resumen.innerHTML = `
+    <h2 class="titulo-comida">
+      Hola${perfil.nombre ? ', ' + sanitizar(perfil.nombre) : ''} 👋
+    </h2>
+    <p style="color:#8C9BA5;margin:0 0 16px;font-size:0.95rem;">
+      ${formatearFecha()}
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;">
+      ${_macroCard('🔥 Calorías', perfil.macros.calorias, 'kcal')}
+      ${_macroCard('🥩 Proteína', perfil.macros.proteina, 'g')}
+      ${_macroCard('🍞 Carbos',   perfil.macros.carbohidratos, 'g')}
+      ${_macroCard('🥑 Grasas',  perfil.macros.grasas, 'g')}
+      ${_macroCard('📊 IMC',     perfil.imc?.imc, perfil.imc?.clasificacion ?? '')}
+    </div>`;
+  main.prepend(resumen);
+}
 
-        // B. Selección para "Factor de Éxito"
-        const opcionesFactor = document.querySelectorAll('#q-factor .btn-opcion');
-        
-        opcionesFactor.forEach(boton => {
-            boton.addEventListener('click', function() {
-                opcionesFactor.forEach(b => b.classList.remove('seleccionado'));
-                this.classList.add('seleccionado');
-            });
-        });
+function _macroCard(label, valor, unidad) {
+  return `
+    <div style="background:#fff;border-radius:12px;padding:14px 20px;
+      min-width:110px;box-shadow:0 2px 8px rgba(0,0,0,0.06);text-align:center;">
+      <div style="font-size:1.4rem;font-weight:bold;color:#1A3636;">${valor}</div>
+      <div style="font-size:0.75rem;color:#8C9BA5;">${unidad}</div>
+      <div style="font-size:0.8rem;color:#6B7280;margin-top:4px;">${label}</div>
+    </div>`;
+}
 
-    
-        
-       // ==========================================
-        // 10. SIMULACIÓN DE CARGA FINAL (Dinámico)
-        // ==========================================
-        
-        document.addEventListener('click', function(e) {
-            const botonSiguiente = e.target.closest('.btn-siguiente-oscuro');
-            
-            // Si hicieron clic en un botón "Siguiente" y NO está apagado (gris)
-            if (botonSiguiente && !botonSiguiente.disabled) {
-                
-                const pantallaActual = botonSiguiente.closest('.paso-cuestionario');
-                
-                // Magia pura: Buscamos cuál es la pantalla que sigue inmediatamente en el HTML
-                const siguientePantalla = pantallaActual.nextElementSibling;
-                
-                // Si la pantalla que sigue resulta ser nuestro spinner de carga...
-                if (siguientePantalla && siguientePantalla.id === 'q-cargando') {
-                    
-                    console.log("Última pantalla detectada. Iniciando simulación de carga...");
-                    
-                    // Iniciamos el temporizador de 3.5 segundos
-                    setTimeout(() => {
-                        console.log("Saltando al Dashboard...");
-                        window.location.href = './dashboard.html';
-                    }, 3500);
-                }
-            }
-        });
+async function _renderComidas(perfil) {
+  const { alimentos } = await cargarDatos();
+  const comidas = perfil.comidas ?? [];
 
-        // ==========================================
-        // 13. LÓGICA DE INTERFAZ: MENÚ LATERAL
-        // ==========================================
-        
-        const btnMenuLateral = document.getElementById('btn-menu-lateral');
-        const btnCerrarMenu = document.getElementById('btn-cerrar-menu');
-        const sidebarMenu = document.getElementById('sidebar-menu');
-        const overlayMenu = document.getElementById('overlay-menu');
+  // IDs de secciones existentes en dashboard.html
+  const idMap = {
+    'Desayuno': 'datos-desayuno',
+    'Almuerzo': 'datos-almuerzo',
+    'Comida':   'datos-comida'
+  };
 
-        // Solo ejecutamos esto si estamos en una pantalla que tiene el menú (como el Dashboard)
-        if (btnMenuLateral && sidebarMenu) {
-            
-            // Función para abrir
-            btnMenuLateral.addEventListener('click', () => {
-                sidebarMenu.classList.add('activo');
-                overlayMenu.classList.add('activo');
-            });
+  comidas.forEach(comida => {
+    const contenedor = document.getElementById(idMap[comida.nombre]);
+    if (!contenedor) return;
 
-            // Función para cerrar (con la tachita)
-            btnCerrarMenu.addEventListener('click', () => {
-                sidebarMenu.classList.remove('activo');
-                overlayMenu.classList.remove('activo');
-            });
+    // Alimentos de ejemplo (FASE 4 los asignará por objetivo)
+    const items = alimentos.slice(0, 2).map(a => `
+      <div style="display:flex;align-items:center;gap:12px;
+        padding:10px;background:#fff;border-radius:10px;
+        box-shadow:0 1px 4px rgba(0,0,0,0.05);margin-bottom:8px;">
+        <span style="font-size:1.4rem;">🍽️</span>
+        <div>
+          <div style="font-weight:600;color:#1A3636;font-size:0.95rem;">
+            ${sanitizar(a.name ?? a.nombre ?? 'Alimento')}
+          </div>
+          <div style="font-size:0.8rem;color:#8C9BA5;">
+            P: ${a.protein ?? 0}g · C: ${a.carbs ?? 0}g · G: ${a.fats ?? 0}g
+          </div>
+        </div>
+        <div style="margin-left:auto;font-size:0.85rem;font-weight:bold;color:#6CBE71;">
+          ${calculateCaloriesLocal(a.protein, a.carbs, a.fats)} kcal
+        </div>
+      </div>`).join('');
 
-            // Función para cerrar (tocando la pantalla oscura)
-            overlayMenu.addEventListener('click', () => {
-                sidebarMenu.classList.remove('activo');
-                overlayMenu.classList.remove('activo');
-            });
-        }
+    contenedor.innerHTML = `
+      <div style="background:#EAF4F4;border-radius:10px;padding:10px 14px;
+        margin-bottom:10px;font-size:0.85rem;color:#1A3636;">
+        🎯 <strong>${comida.calorias} kcal</strong> · 
+        P: ${comida.proteina}g · C: ${comida.carbohidratos}g · G: ${comida.grasas}g
+      </div>
+      ${items || '<p class="texto-fantasma">Sin alimentos asignados aún.</p>'}`;
+  });
+}
 
-        // ==========================================
-        // 14. LÓGICA DE INTERFAZ: FILTRADO DE BLOGS
-        // ==========================================
-        
-        const botonesFiltro = document.querySelectorAll('#menu-filtros-blog .nav-link');
-        const tarjetasBlog = document.querySelectorAll('.tarjeta-articulo');
+function calculateCaloriesLocal(p = 0, c = 0, g = 0) {
+  return Math.round(p * 4 + c * 4 + g * 9);
+}
 
-        if (botonesFiltro.length > 0 && tarjetasBlog.length > 0) {
-            botonesFiltro.forEach(boton => {
-                boton.addEventListener('click', function(e) {
-                    e.preventDefault(); // Evita que la página salte hacia arriba
+// ══════════════════════════════════════════════════════════
+// BLOGS — Filtrado por categoría + lectura de URL
+// ══════════════════════════════════════════════════════════
 
-                    // 1. Cambiar el color verde (activo) al botón clickeado
-                    botonesFiltro.forEach(b => b.classList.remove('activo'));
-                    this.classList.add('activo');
+function initBlogs() {
+  _initMenuLateral();
+  _initFiltrosBlog();
+}
 
-                    // 2. Obtener qué categoría queremos ver
-                    const filtroSeleccionado = this.getAttribute('data-filtro');
+function _initFiltrosBlog() {
+  const botones  = document.querySelectorAll('#menu-filtros-blog .nav-link');
+  const tarjetas = document.querySelectorAll('.tarjeta-articulo');
+  if (!botones.length) return;
 
-                    // 3. Filtrar las tarjetas
-                    tarjetasBlog.forEach(tarjeta => {
-                        const categoriaTarjeta = tarjeta.getAttribute('data-categoria');
+  const filtrar = cat => {
+    botones.forEach(b => b.classList.toggle('activo', b.dataset.filtro === cat));
+    tarjetas.forEach(t => {
+      const visible = cat === 'todos' || t.dataset.categoria === cat;
+      t.style.opacity   = visible ? '1' : '0';
+      t.style.transform = visible ? 'scale(1)' : 'scale(0.92)';
+      setTimeout(() => { t.style.display = visible ? 'block' : 'none'; }, visible ? 0 : 280);
+    });
+  };
 
-                        // Si seleccionamos "todos" o si la tarjeta coincide con el filtro
-                        if (filtroSeleccionado === 'todos' || filtroSeleccionado === categoriaTarjeta) {
-                            tarjeta.style.display = 'block'; // La mostramos
-                            
-                            // Un pequeño efecto de aparición suave
-                            setTimeout(() => {
-                                tarjeta.style.opacity = '1';
-                                tarjeta.style.transform = 'scale(1)';
-                            }, 50);
-                        } else {
-                            // Ocultamos las que no coinciden
-                            tarjeta.style.opacity = '0';
-                            tarjeta.style.transform = 'scale(0.8)';
-                            
-                            // Esperamos a que acabe la animación para quitarla del espacio
-                            setTimeout(() => {
-                                tarjeta.style.display = 'none';
-                            }, 300);
-                        }
-                    });
-                });
-            });
-            
-        }
-        // --- NUEVO: Leer el filtro de la URL al cargar la página ---
-        // Esto permite que al llegar desde el index.html, se auto-filtre la categoría
-        window.addEventListener('DOMContentLoaded', () => {
-            // Buscamos si la URL tiene un "?filtro=algo"
-            const parametrosURL = new URLSearchParams(window.location.search);
-            const filtroSolicitado = parametrosURL.get('filtro');
+  botones.forEach(b => b.addEventListener('click', e => {
+    e.preventDefault();
+    filtrar(b.dataset.filtro);
+  }));
 
-            if (filtroSolicitado) {
-                // Buscamos el botón que coincide con ese filtro
-                const botonCorrespondiente = document.querySelector(`#menu-filtros-blog .nav-link[data-filtro="${filtroSolicitado}"]`);
-                
-                if (botonCorrespondiente) {
-                    // Simulamos que el usuario le dio clic mágicamente
-                    botonCorrespondiente.click();
-                }
-            }
-        });
+  // Auto-filtro por parámetro de URL
+  const param = new URLSearchParams(location.search).get('filtro');
+  if (param) filtrar(param);
+}
+
+// ══════════════════════════════════════════════════════════
+// MENÚ LATERAL — Compartido entre dashboard y blogs
+// ══════════════════════════════════════════════════════════
+
+function _initMenuLateral() {
+  const btnAbrir  = document.getElementById('btn-menu-lateral');
+  const btnCerrar = document.getElementById('btn-cerrar-menu');
+  const sidebar   = document.getElementById('sidebar-menu');
+  const overlay   = document.getElementById('overlay-menu');
+  if (!btnAbrir || !sidebar) return;
+
+  const abrir  = () => { sidebar.classList.add('activo');    overlay?.classList.add('activo'); };
+  const cerrar = () => { sidebar.classList.remove('activo'); overlay?.classList.remove('activo'); };
+
+  btnAbrir.addEventListener('click', abrir);
+  btnCerrar?.addEventListener('click', cerrar);
+  overlay?.addEventListener('click', cerrar);
+}

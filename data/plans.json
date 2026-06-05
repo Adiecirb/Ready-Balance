@@ -1,0 +1,84 @@
+[
+  {
+    "id": "plan_001",
+    "usuarioId": "usr_001",
+    "nombre": "Plan Pérdida Moderada - Briceida",
+    "objetivo": "perdida_moderada",
+    "calorias": 1450,
+    "macros": { "proteina": 126, "carbohidratos": 163, "grasas": 48 },
+    "imc": { "imc": 22.9, "clasificacion": "Normal" },
+    "comidas": [
+      {
+        "nombre": "Desayuno",
+        "calorias": 435,
+        "proteina": 38,
+        "carbohidratos": 49,
+        "grasas": 14,
+        "alimentosIds": [3, 8, 19]
+      },
+      {
+        "nombre": "Almuerzo",
+        "calorias": 508,
+        "proteina": 44,
+        "carbohidratos": 57,
+        "grasas": 17,
+        "alimentosIds": [1, 7, 16]
+      },
+      {
+        "nombre": "Comida",
+        "calorias": 507,
+        "proteina": 44,
+        "carbohidratos": 57,
+        "grasas": 17,
+        "alimentosIds": [2, 9, 17]
+      }
+    ],
+    "fechaCreacion": "2026-01-15T10:05:00.000Z",
+    "activo": true
+  },
+  {
+    "id": "plan_002",
+    "usuarioId": "usr_002",
+    "nombre": "Plan Ganancia Limpia - José",
+    "objetivo": "ganancia_limpia",
+    "calorias": 2950,
+    "macros": { "proteina": 185, "carbohidratos": 369, "grasas": 82 },
+    "imc": { "imc": 23.7, "clasificacion": "Normal" },
+    "comidas": [
+      {
+        "nombre": "Desayuno",
+        "calorias": 737,
+        "proteina": 46,
+        "carbohidratos": 92,
+        "grasas": 21,
+        "alimentosIds": [3, 8, 20, 13]
+      },
+      {
+        "nombre": "Almuerzo",
+        "calorias": 885,
+        "proteina": 56,
+        "carbohidratos": 110,
+        "grasas": 25,
+        "alimentosIds": [6, 7, 16]
+      },
+      {
+        "nombre": "Comida",
+        "calorias": 885,
+        "proteina": 56,
+        "carbohidratos": 110,
+        "grasas": 25,
+        "alimentosIds": [1, 11, 17, 14]
+      },
+      {
+        "nombre": "Cena",
+        "calorias": 443,
+        "proteina": 27,
+        "carbohidratos": 57,
+        "grasas": 11,
+        "alimentosIds": [5, 18]
+      }
+    ],
+    "fechaCreacion": "2026-01-10T09:10:00.000Z",
+    "activo": true
+  }
+]

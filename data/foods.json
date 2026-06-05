@@ -1,8 +1,22 @@
 [
-  {
-    "name": "Chicken Breast",
-    "protein": 31,
-    "carbs": 0,
-    "fats": 3.6
-  }
+  { "id": 1,  "nombre": "Pechuga de pollo",   "name": "Chicken Breast",    "categoria": "proteína", "protein": 31, "carbs": 0,  "fats": 3.6, "calorias": 157, "merma": 0.10, "unidad": "g" },
+  { "id": 2,  "nombre": "Atún en agua",       "name": "Tuna in Water",     "categoria": "proteína", "protein": 26, "carbs": 0,  "fats": 0.5, "calorias": 109, "merma": 0.05, "unidad": "g" },
+  { "id": 3,  "nombre": "Huevo entero",       "name": "Whole Egg",         "categoria": "proteína", "protein": 13, "carbs": 1,  "fats": 11,  "calorias": 155, "merma": 0.12, "unidad": "g" },
+  { "id": 4,  "nombre": "Clara de huevo",     "name": "Egg White",         "categoria": "proteína", "protein": 11, "carbs": 0,  "fats": 0.2, "calorias": 52,  "merma": 0.05, "unidad": "g" },
+  { "id": 5,  "nombre": "Salmón",             "name": "Salmon",            "categoria": "proteína", "protein": 25, "carbs": 0,  "fats": 13,  "calorias": 208, "merma": 0.15, "unidad": "g" },
+  { "id": 6,  "nombre": "Carne molida 90%",   "name": "Lean Ground Beef",  "categoria": "proteína", "protein": 26, "carbs": 0,  "fats": 10,  "calorias": 215, "merma": 0.20, "unidad": "g" },
+  { "id": 7,  "nombre": "Arroz blanco cocido","name": "Cooked White Rice",  "categoria": "carbohidrato", "protein": 3, "carbs": 28, "fats": 0.3, "calorias": 130, "merma": 0.00, "unidad": "g" },
+  { "id": 8,  "nombre": "Avena",              "name": "Oats",              "categoria": "carbohidrato", "protein": 13, "carbs": 66, "fats": 7,  "calorias": 389, "merma": 0.00, "unidad": "g" },
+  { "id": 9,  "nombre": "Camote cocido",      "name": "Cooked Sweet Potato","categoria": "carbohidrato", "protein": 2, "carbs": 20, "fats": 0.1, "calorias": 86, "merma": 0.10, "unidad": "g" },
+  { "id": 10, "nombre": "Tortilla de maíz",   "name": "Corn Tortilla",     "categoria": "carbohidrato", "protein": 2, "carbs": 19, "fats": 1,   "calorias": 92, "merma": 0.00, "unidad": "pza" },
+  { "id": 11, "nombre": "Quinoa cocida",      "name": "Cooked Quinoa",     "categoria": "carbohidrato", "protein": 4, "carbs": 21, "fats": 2,   "calorias": 120, "merma": 0.00, "unidad": "g" },
+  { "id": 12, "nombre": "Pan integral",       "name": "Whole Wheat Bread", "categoria": "carbohidrato", "protein": 9, "carbs": 41, "fats": 4,   "calorias": 247, "merma": 0.00, "unidad": "g" },
+  { "id": 13, "nombre": "Aguacate",           "name": "Avocado",           "categoria": "grasa", "protein": 2, "carbs": 9,  "fats": 15, "calorias": 160, "merma": 0.30, "unidad": "g" },
+  { "id": 14, "nombre": "Aceite de oliva",    "name": "Olive Oil",         "categoria": "grasa", "protein": 0, "carbs": 0,  "fats": 100,"calorias": 884, "merma": 0.00, "unidad": "ml" },
+  { "id": 15, "nombre": "Almendras",          "name": "Almonds",           "categoria": "grasa", "protein": 21, "carbs": 22, "fats": 49, "calorias": 579, "merma": 0.00, "unidad": "g" },
+  { "id": 16, "nombre": "Brócoli",            "name": "Broccoli",          "categoria": "verdura", "protein": 3, "carbs": 7, "fats": 0.4, "calorias": 34, "merma": 0.20, "unidad": "g" },
+  { "id": 17, "nombre": "Espinacas",          "name": "Spinach",           "categoria": "verdura", "protein": 3, "carbs": 4, "fats": 0.4, "calorias": 23, "merma": 0.10, "unidad": "g" },
+  { "id": 18, "nombre": "Jitomate",           "name": "Tomato",            "categoria": "verdura", "protein": 1, "carbs": 4, "fats": 0.2, "calorias": 18, "merma": 0.05, "unidad": "g" },
+  { "id": 19, "nombre": "Manzana",            "name": "Apple",             "categoria": "fruta",  "protein": 0.3,"carbs": 14,"fats": 0.2, "calorias": 52, "merma": 0.08, "unidad": "g" },
+  { "id": 20, "nombre": "Plátano",            "name": "Banana",            "categoria": "fruta",  "protein": 1, "carbs": 23, "fats": 0.3, "calorias": 89, "merma": 0.35, "unidad": "g" }
 ]

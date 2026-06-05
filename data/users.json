@@ -1,0 +1,36 @@
+[
+  {
+    "id": "usr_001",
+    "nombre": "Briceida",
+    "correo": "bri@readybalance.com",
+    "rol": "usuario",
+    "genero": "femenino",
+    "edad": 22,
+    "peso": 60,
+    "estatura": 162,
+    "objetivo": "perdida_moderada",
+    "actividad": "moderado",
+    "nComidas": 3,
+    "alergias": [],
+    "condiciones": [],
+    "fechaRegistro": "2026-01-15T10:00:00.000Z",
+    "planActivo": "plan_001"
+  },
+  {
+    "id": "usr_002",
+    "nombre": "José",
+    "correo": "jose@readybalance.com",
+    "rol": "nutriologo",
+    "genero": "masculino",
+    "edad": 25,
+    "peso": 75,
+    "estatura": 178,
+    "objetivo": "ganancia_limpia",
+    "actividad": "activo",
+    "nComidas": 4,
+    "alergias": ["mariscos"],
+    "condiciones": [],
+    "fechaRegistro": "2026-01-10T09:00:00.000Z",
+    "planActivo": "plan_002"
+  }
+]
