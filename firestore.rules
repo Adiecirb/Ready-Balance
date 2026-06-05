@@ -1,0 +1,32 @@
+bash
+
+cat > /mnt/user-data/outputs/firestore.rules << 'EOF'
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /usuarios/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /usuarios/{uid}/planes/{planId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /usuarios/{uid}/progreso/{diaId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /alimentos/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Solo Functions del servidor pueden escribir aquí
+    match /registro_usuarios/{uid} {
+      allow read, write: if false;
+    }
+  }
+}
+EOF
+echo "ok"
