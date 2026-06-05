@@ -9,16 +9,16 @@
 <body class="fondo-dashboard">
 
     <div class="overlay-menu" id="overlay-menu"></div>
-    
+
     <aside class="sidebar-menu" id="sidebar-menu">
         <div class="sidebar-header">
             <h3>Menú</h3>
             <button id="btn-cerrar-menu" class="icono-btn">✕</button>
         </div>
         <ul class="sidebar-links">
-            <li><a href="./dashboard.html">Mis Planes</a></li>
+            <li><a href="./dashboard.html" class="activo">Mis Planes</a></li>
             <li><a href="./blogs.html">Blogs</a></li>
-            <li><a href="#">Ajustes</a></li>
+            <li><a href="#seccion-progreso">Mi Avance</a></li>
             <li><a href="#" id="btn-logout" class="texto-rojo">Cerrar Sesión</a></li>
         </ul>
     </aside>
@@ -26,50 +26,77 @@
     <nav class="navbar-dashboard">
         <div class="nav-izq">
             <button id="btn-menu-lateral" class="icono-btn">
-                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
             </button>
         </div>
-
         <div class="nav-centro">
-            <a href="#" class="nav-link activo">Mis Dietas</a>
-            <a href="#" class="nav-link">Nutriólogos</a>
-            <a href="#" class="nav-link">Mi perfil</a>
-            <a href="#" class="nav-link">Mi avance</a>
+            <a href="#" class="nav-link activo" data-tab="dietas">Mis Dietas</a>
+            <a href="#" class="nav-link" data-tab="compra">Lista Compra</a>
+            <a href="#" class="nav-link" data-tab="perfil">Mi Perfil</a>
+            <a href="#" class="nav-link" data-tab="avance">Mi Avance</a>
         </div>
-
         <div class="nav-der">
-            <button class="icono-btn avatar-usuario">
-                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <button class="icono-btn avatar-usuario" id="btn-avatar">
+                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
             </button>
         </div>
     </nav>
 
-    <main class="contenedor-principal-planes">
-        
-        <section class="bloque-comida">
-            <h2 class="titulo-comida">Desayuno</h2>
-            <div class="contenedor-items-comida" id="datos-desayuno">
-                <p class="texto-fantasma">Alimentos aquí...</p>
-            </div>
-        </section>
-
-        <section class="bloque-comida">
-            <h2 class="titulo-comida">Almuerzo</h2>
-            <div class="contenedor-items-comida" id="datos-almuerzo">
-                <p class="texto-fantasma">Alimentos aquí...</p>
-            </div>
-        </section>
-
-        <section class="bloque-comida">
-            <h2 class="titulo-comida">Comida</h2>
-            <div class="contenedor-items-comida" id="datos-comida">
-                <p class="texto-fantasma">Alimentos aquí...</p>
-            </div>
-        </section>
-
+    <main class="contenedor-principal-planes" id="contenido-principal">
+        <!-- JS renderiza aquí -->
+        <div class="rb-loading" id="rb-loading">
+            <div class="spinner"></div>
+            <p>Cargando tu plan...</p>
+        </div>
     </main>
 
-    <script type="module" src="./js/main.js"></script>
+    <!-- ── TEMPLATES HTML (ocultos, los clona JS) ─────────── -->
 
+    <!-- Template: tarjeta de macro resumen -->
+    <template id="tpl-macro-card">
+        <div class="rb-macro-card">
+            <span class="rb-macro-emoji"></span>
+            <strong class="rb-macro-valor"></strong>
+            <small class="rb-macro-unidad"></small>
+            <span class="rb-macro-label"></span>
+        </div>
+    </template>
+
+    <!-- Template: item de alimento dentro de una comida -->
+    <template id="tpl-item-alimento">
+        <div class="rb-item-alimento">
+            <span class="rb-item-emoji"></span>
+            <div class="rb-item-info">
+                <strong class="rb-item-nombre"></strong>
+                <small class="rb-item-macros"></small>
+            </div>
+            <div class="rb-item-gramos">
+                <strong class="rb-gramos-val"></strong>
+                <small class="rb-gramos-unidad"></small>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template: bloque de comida completo -->
+    <template id="tpl-bloque-comida">
+        <section class="bloque-comida rb-bloque">
+            <div class="rb-comida-header">
+                <h2 class="titulo-comida rb-comida-nombre"></h2>
+                <span class="rb-comida-kcal"></span>
+            </div>
+            <div class="rb-comida-objetivos"></div>
+            <div class="contenedor-items-comida rb-items"></div>
+            <div class="rb-comida-totales"></div>
+        </section>
+    </template>
+
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>

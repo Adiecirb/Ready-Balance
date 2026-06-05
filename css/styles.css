@@ -1414,3 +1414,203 @@ body {
         justify-content: flex-start;
     }
 }
+
+/* ── FASE 4: Motor nutricional —─ */
+
+/* Loading */
+.rb-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 40vh;
+    gap: 16px;
+    color: #8C9BA5;
+}
+
+/* Resumen de macros (tarjetas) */
+.rb-resumen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.rb-macro-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px 18px;
+    min-width: 100px;
+    flex: 1;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.rb-macro-emoji  { font-size: 1.4rem; }
+.rb-macro-valor  { font-size: 1.3rem; color: #1A3636; }
+.rb-macro-unidad { font-size: 0.72rem; color: #8C9BA5; }
+.rb-macro-label  { font-size: 0.78rem; color: #6B7280; margin-top: 2px; }
+
+/* Alerta IMC */
+.rb-imc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #EAF4F4;
+    border-radius: 30px;
+    padding: 8px 18px;
+    font-size: 0.88rem;
+    color: #1A3636;
+    margin-top: 12px;
+}
+
+/* Header de cada bloque de comida */
+.rb-comida-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.rb-comida-kcal {
+    font-size: 0.88rem;
+    color: #6CBE71;
+    font-weight: 700;
+    background: #EAF4F4;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+/* Objetivos de macros (pequeña barra debajo del header) */
+.rb-comida-objetivos {
+    font-size: 0.8rem;
+    color: #8C9BA5;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: #F7FAFA;
+    border-radius: 8px;
+}
+
+/* Items de alimentos */
+.rb-item-alimento {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+    margin-bottom: 8px;
+    transition: box-shadow 0.2s;
+}
+.rb-item-alimento:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+
+.rb-item-emoji  { font-size: 1.5rem; }
+.rb-item-info   { flex: 1; }
+.rb-item-nombre { display: block; font-size: 0.95rem; color: #1A3636; }
+.rb-item-macros { font-size: 0.76rem; color: #8C9BA5; }
+
+.rb-item-gramos {
+    text-align: right;
+    min-width: 54px;
+}
+.rb-gramos-val   { display: block; font-size: 1rem; font-weight: 700; color: #6CBE71; }
+.rb-gramos-unidad{ font-size: 0.72rem; color: #8C9BA5; }
+
+/* Totales reales de la comida */
+.rb-comida-totales {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #6B7280;
+    border-top: 1px solid #F0F0F0;
+    padding-top: 8px;
+}
+
+/* ── PESTAÑA LISTA DE COMPRA ─────────────────────────────── */
+.rb-lista-compra {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rb-compra-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 18px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+
+.rb-compra-nombre { font-size: 0.95rem; color: #1A3636; font-weight: 600; }
+.rb-compra-gramos { font-size: 0.88rem; color: #6CBE71; font-weight: 700; }
+
+/* ── PESTAÑA MI PERFIL ───────────────────────────────────── */
+.rb-perfil-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.rb-perfil-item {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+.rb-perfil-item strong { display: block; font-size: 0.8rem; color: #8C9BA5; margin-bottom: 4px; }
+.rb-perfil-item span   { font-size: 1.1rem; color: #1A3636; font-weight: 700; }
+
+/* ── PESTAÑA MI AVANCE ───────────────────────────────────── */
+.rb-avance-barra-wrap {
+    margin-bottom: 18px;
+}
+.rb-avance-barra-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #6B7280;
+    margin-bottom: 6px;
+}
+.rb-avance-barra-bg {
+    height: 10px;
+    background: #EEEEEE;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.rb-avance-barra-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6CBE71, #27ae60);
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+/* ── TABS ACTIVOS ────────────────────────────────────────── */
+.rb-tab-panel { display: none; }
+.rb-tab-panel.activo { display: block; }
+
+/* ── SIN PERFIL: CTA ─────────────────────────────────────── */
+.rb-sin-plan {
+    text-align: center;
+    padding: 60px 20px;
+}
+.rb-sin-plan p { font-size: 1.15rem; color: #8C9BA5; margin-bottom: 24px; }
+.rb-sin-plan a {
+    display: inline-block;
+    padding: 14px 36px;
+    background: #6CBE71;
+    color: #fff;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+@media (max-width: 480px) {
+    .rb-macro-card  { min-width: 80px; padding: 10px 12px; }
+    .rb-perfil-grid { grid-template-columns: 1fr; }
+}
