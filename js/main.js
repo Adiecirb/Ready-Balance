@@ -36,6 +36,8 @@ if (pagina === 'index.html' || pagina === '') {
   if (!protegerRuta()) { /* redirige sola */ } else { initDashboard(); }
 } else if (pagina === 'blogs.html') {
   initBlogs();
+} else if (pagina === 'articulo.html') { // NUEVO
+  initArticulo();                        // NUEVO
 }
 
 // ══════════════════════════════════════════════════════════
@@ -654,12 +656,93 @@ function _toast(msg) {
 }
 
 // Placeholder functions for other routes/elements to guarantee no runtime failures
-function _initMenuLateral() {}
+// ══════════════════════════════════════════════════════════
+// LÓGICA DE INTERFAZ Y RUTAS
+// ══════════════════════════════════════════════════════════
+
+function _initMenuLateral() {
+    const btnMenuLateral = document.getElementById('btn-menu-lateral');
+    const btnCerrarMenu = document.getElementById('btn-cerrar-menu');
+    const sidebarMenu = document.getElementById('sidebar-menu');
+    const overlayMenu = document.getElementById('overlay-menu');
+
+    if (btnMenuLateral && sidebarMenu && overlayMenu) {
+        btnMenuLateral.addEventListener('click', function(e) {
+            e.preventDefault();
+            sidebarMenu.classList.add('activo');
+            overlayMenu.classList.add('activo');
+        });
+
+        if (btnCerrarMenu) {
+            btnCerrarMenu.addEventListener('click', function() {
+                sidebarMenu.classList.remove('activo');
+                overlayMenu.classList.remove('activo');
+            });
+        }
+
+        overlayMenu.addEventListener('click', function() {
+            sidebarMenu.classList.remove('activo');
+            overlayMenu.classList.remove('activo');
+        });
+    }
+}
+
+function initBlogs() {
+    // Inicializamos el menú lateral aquí también
+    _initMenuLateral();
+
+    const botonesFiltro = document.querySelectorAll('#menu-filtros-blog .nav-link');
+    const tarjetasBlog = document.querySelectorAll('.tarjeta-articulo');
+
+    // 1. Lógica de clics en los filtros
+    if (botonesFiltro.length > 0 && tarjetasBlog.length > 0) {
+        botonesFiltro.forEach(boton => {
+            boton.addEventListener('click', function(e) {
+                e.preventDefault(); 
+                
+                botonesFiltro.forEach(b => b.classList.remove('activo'));
+                this.classList.add('activo');
+
+                const filtroSeleccionado = this.getAttribute('data-filtro');
+
+                tarjetasBlog.forEach(tarjeta => {
+                    const categoriaTarjeta = tarjeta.getAttribute('data-categoria');
+
+                    if (filtroSeleccionado === 'todos' || filtroSeleccionado === categoriaTarjeta) {
+                        tarjeta.style.display = 'block'; 
+                        setTimeout(() => {
+                            tarjeta.style.opacity = '1';
+                            tarjeta.style.transform = 'scale(1)';
+                        }, 50);
+                    } else {
+                        tarjeta.style.opacity = '0';
+                        tarjeta.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            tarjeta.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            });
+        });
+    }
+
+    // 2. Leer URL al cargar la página (para auto-filtrar desde el Index)
+    const parametrosURL = new URLSearchParams(window.location.search);
+    const filtroSolicitado = parametrosURL.get('filtro');
+
+    if (filtroSolicitado) {
+        const botonCorrespondiente = document.querySelector(`#menu-filtros-blog .nav-link[data-filtro="${filtroSolicitado}"]`);
+        if (botonCorrespondiente) {
+            botonCorrespondiente.click();
+        }
+    }
+}
+
+// Estos se quedan como placeholders hasta que se construyan sus secciones
 function _renderSinPlan() {}
 function _renderDietas() {}
 function _renderCompra() {}
 function _renderPerfil() {}
-function initBlogs() {}
 
 
 // ══════════════════════════════════════════════════════════
@@ -807,4 +890,90 @@ async function _renderInventario(perfil) {
   document.getElementById('btn-descargar-inventario')?.addEventListener('click', () => {
     alert('📊 Descarga de Excel disponible en próximas versiones');
   });
+}
+
+
+
+
+
+
+
+
+
+
+// ==========================================
+// 15. LÓGICA DE INTERFAZ: LECTURA DE ARTÍCULOS
+// ==========================================
+
+function initArticulo() {
+    // 1. Nuestra "Base de Datos" temporal de artículos
+    const baseDatosBlogs = {
+        'ayuno': {
+            categoria: 'Special Diets',
+            titulo: 'Eating for Longevity: How Dietary Patterns Can Influence How Long (and Well) You Live',
+            fecha: 'Publicado el 26 de Agosto, 2026',
+            imagen: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+            contenido: `
+                <p>We all want to live longer—but more importantly, we want to live better. Not just more years, but more energy, more clarity, more joy. That's the goal of longevity: not just lifespan, but healthspan.</p>
+                <p>And what if the path to a longer, healthier life wasn't in a pill or a trend—but on your plate?</p>
+                <p>Emerging research confirms that food is one of the most powerful levers we have for extending both life and vitality. Diet isn't just fuel—it's information. It talks to your genes, gut, hormones, and immune system.</p>
+                <h3>What We Know From the Blue Zones</h3>
+                <p>"Blue Zones" are five regions where people live longer than average, with dramatically lower rates of chronic disease.</p>
+                <p>The five are: Okinawa, Japan<br>Sardinia, Italy<br>Ikaria, Greece<br>Nicoya Peninsula, Costa Rica<br>Loma Linda, California</p>
+            `
+        },
+        'suplementos': {
+            categoria: 'Tips Fit',
+            titulo: 'Guía Definitiva de Suplementos: Qué tomar y cuándo',
+            fecha: 'Publicado el 15 de Septiembre, 2026',
+            imagen: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+            contenido: `
+                <p>El mundo de la suplementación deportiva puede ser abrumador. Con cientos de botes coloridos prometiendo resultados milagrosos, es difícil saber qué es ciencia y qué es marketing.</p>
+                <p>En Ready Balance nos enfocamos en lo que realmente funciona. Los suplementos no reemplazan una mala dieta, pero pueden potenciar una buena.</p>
+                <h3>Los 3 Fantásticos</h3>
+                <p><strong>1. Proteína Whey:</strong> Ideal para recuperar el músculo dañado después de entrenar. Es comida rápida y conveniente.<br>
+                <strong>2. Creatina Monohidratada:</strong> El suplemento más estudiado del mundo. Aumenta tu fuerza explosiva e hidratación celular.<br>
+                <strong>3. Cafeína:</strong> El mejor pre-entreno natural para darte ese extra de energía mental y física.</p>
+            `
+        },
+        'vitaminas': {
+            categoria: 'Nutrición',
+            titulo: 'Micronutrientes: La clave oculta para multiplicar tu energía',
+            fecha: 'Publicado el 02 de Octubre, 2026',
+            imagen: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+            contenido: `
+                <p>Solemos obsesionarnos con las calorías, los carbohidratos, las grasas y las proteínas (los macronutrientes). Sin embargo, la fatiga crónica suele venir de una deficiencia en los micronutrientes.</p>
+                <p>Las vitaminas y minerales son las bujías que encienden el motor de tu metabolismo. Sin ellas, no importa cuántas calorías consumas, te sentirás sin energía.</p>
+                <h3>Esenciales para la energía</h3>
+                <ul>
+                    <li><strong>Vitamina B12:</strong> Fundamental para la formación de glóbulos rojos y la función neurológica.</li>
+                    <li><strong>Hierro:</strong> Transporta el oxígeno a tus células musculares.</li>
+                    <li><strong>Magnesio:</strong> Participa en más de 300 reacciones bioquímicas en tu cuerpo.</li>
+                </ul>
+            `
+        }
+    };
+
+    // 2. Leer qué artículo pidieron en la URL
+    const parametrosURL = new URLSearchParams(window.location.search);
+    const idArticulo = parametrosURL.get('id');
+
+    // 3. Buscar y renderizar
+    const datos = baseDatosBlogs[idArticulo];
+
+    if (datos) {
+        document.getElementById('art-categoria').textContent = datos.categoria;
+        document.getElementById('art-titulo').textContent = datos.titulo;
+        document.getElementById('art-fecha').textContent = datos.fecha;
+        
+        const imgEl = document.getElementById('art-imagen');
+        imgEl.src = datos.imagen;
+        imgEl.style.display = 'block'; 
+
+        document.getElementById('art-contenido').innerHTML = datos.contenido;
+    } else {
+        document.getElementById('art-titulo').textContent = 'Artículo no encontrado';
+        document.getElementById('art-categoria').textContent = 'Error';
+        document.getElementById('art-contenido').innerHTML = '<p>Lo sentimos, el artículo que buscas no existe.</p>';
+    }
 }

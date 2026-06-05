@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artículo - Ready Balance</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="fondo-dashboard">
+
+    <!-- BARRA DE NAVEGACIÓN (Versión Pública/Limpia) -->
+    <nav class="navbar-dashboard">
+        <div class="nav-izq">
+            <a href="./index.html" style="text-decoration: none; font-weight: bold; color: #1A3636; font-size: 1.2rem;">
+                Ready Balance
+            </a>
+        </div>
+        <div class="nav-centro">
+            <a href="./index.html" class="nav-link">Inicio</a>
+            <a href="./blogs.html" class="nav-link activo">Blogs</a>
+        </div>
+        <div class="nav-der">
+            <!-- Espacio vacío para mantener el diseño limpio -->
+        </div>
+    </nav>
+
+    <!-- CONTENEDOR DEL ARTÍCULO -->
+    <main class="contenedor-lectura">
+        
+        <!-- Botón para regresar dinámicamente -->
+        <a href="javascript:history.back()" class="btn-regresar">
+            ← Regresar
+        </a>
+
+        <!-- Encabezado Dinámico -->
+        <header class="cabecera-articulo">
+            <span id="art-categoria" class="etiqueta-categoria">Cargando...</span>
+            <h1 id="art-titulo" class="titulo-articulo">Cargando título del artículo...</h1>
+            <p id="art-fecha" class="fecha-articulo"></p>
+        </header>
+
+        <!-- Imagen Dinámica -->
+        <div class="contenedor-imagen-articulo">
+            <img id="art-imagen" src="" alt="Imagen del artículo" class="imagen-articulo" style="display: none;">
+        </div>
+
+        <!-- Cuerpo Dinámico -->
+        <article id="art-contenido" class="cuerpo-articulo">
+            <!-- El JavaScript inyectará los párrafos aquí -->
+        </article>
+
+    </main>
+
+    <!-- Conexión al JavaScript -->
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>
