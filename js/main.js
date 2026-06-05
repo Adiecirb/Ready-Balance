@@ -1,4 +1,4 @@
-// main.js — Entrada principal, router por vista
+// main.js — Entrada principal, router por vista + autenticación Firebase
 
 import { cargarDatos }         from './config.js';
 import { guardarCache, obtenerCache, limpiarCache } from './cache.js';
@@ -7,14 +7,33 @@ import {
   calcularMacros, calcularIMC, distribuirPorComidas,
   textoANivelActividad, textoAObjetivo, sanitizar, formatearFecha
 } from './utils.js';
+import {
+  registrar, login, logout, resetPassword, observarSesion,
+  protegerRuta, estaAutenticado, guardarPerfilFirestore, obtenerUsuarioActual
+} from './auth.js';
 
 // Detecta la página actual y lanza el módulo correspondiente
 const pagina = location.pathname.split('/').pop() || 'index.html';
 
-if (pagina === 'index.html' || pagina === '') initIndex();
-else if (pagina === 'dashboard.html')         initDashboard();
-else if (pagina === 'blogs.html')             initBlogs();
+// Observer de sesión global (se ejecuta al iniciar la app)
+observarSesion((user, datosUsuario) => {
+  console.log('Estado de sesión actualizado:', user ? user.email : 'sin sesión');
+});
 
+if (pagina === 'index.html' || pagina === '') {
+  initIndex();
+
+} else if (pagina === 'dashboard.html') {
+
+  if (!protegerRuta()) {
+    location.href = './index.html';
+} else {
+  initDashboard();
+}
+} else if (pagina === 'blogs.html') {
+
+  initBlogs();
+}
 // ══════════════════════════════════════════════════════════
 // INDEX — Carrusel + cuestionario + onboarding
 // ══════════════════════════════════════════════════════════
@@ -23,6 +42,7 @@ function initIndex() {
   _initCarrusel();
   _initCuestionario();
   _initMenuLateral();
+  _initModalesAuth();
 }
 
 function _initCarrusel() {
@@ -206,8 +226,8 @@ function _initCuestionario() {
     }
   });
 
-  // Registro simulado (FASE 3 conectará Firebase aquí)
-  document.getElementById('btn-registrate')?.addEventListener('click', () => {
+  // Registro con Firebase
+  document.getElementById('btn-registrate')?.addEventListener('click', async () => {
     const correo = document.getElementById('reg-correo')?.value;
     const nombre = document.getElementById('reg-nombre')?.value;
     const pass   = document.getElementById('reg-pass')?.value;
@@ -215,9 +235,15 @@ function _initCuestionario() {
       alert('Por favor completa todos los campos.');
       return;
     }
-    estado.correo = correo;
-    estado.nombre = nombre;
-    if (pasoActual < pasos.length - 1) irA(pasoActual + 1);
+    try {
+      const { uid } = await registrar(correo, pass, nombre, 'usuario');
+      estado.uid = uid;
+      estado.correo = correo;
+      estado.nombre = nombre;
+      if (pasoActual < pasos.length - 1) irA(pasoActual + 1);
+    } catch (err) {
+      alert('Error en registro: ' + err.message);
+    }
   });
 
   // Toggle visibilidad contraseña
@@ -227,7 +253,7 @@ function _initCuestionario() {
   });
 }
 
-// Calcula plan completo y lo persiste en caché
+// Calcula plan completo, persiste en caché y Firestore
 function _calcularYGuardar(est) {
   try {
     const tmb      = calcularTMB(est);
@@ -245,7 +271,15 @@ function _calcularYGuardar(est) {
       comidas, actividad, objetivo,
       fechaCreacion: new Date().toISOString()
     };
+    
+    // Guarda en localStorage
     guardarCache('perfil_usuario', perfil);
+    
+    // Guarda en Firestore si usuario está autenticado
+    if (est.uid) {
+      guardarPerfilFirestore(est.uid, perfil);
+    }
+    
     console.log('Perfil calculado:', perfil);
   } catch (err) {
     console.error('Error calculando perfil:', err);
@@ -258,12 +292,155 @@ function _revelar(el) {
 }
 
 // ══════════════════════════════════════════════════════════
+// MODALES AUTH — Login, registro y recuperación
+// ══════════════════════════════════════════════════════════
+
+function _initModalesAuth() {
+  const modalLogin = document.getElementById('modal-login');
+  const modalRecuperar = document.getElementById('modal-recuperar');
+  const vistaCuestionario = document.getElementById('vista-cuestionario');
+  
+  // Botones header
+  const btnCrearCuenta = document.getElementById('btn-crear-cuenta');
+  const btnIniciarSesion = document.getElementById('btn-iniciar-sesion');
+  
+  // Botones login
+  const btnCerrarLogin = document.getElementById('btn-cerrar-login');
+  const btnRecuperarPass = document.getElementById('btn-recuperar-pass');
+  const btnIrRegistro = document.getElementById('btn-ir-registro');
+  const formLogin = document.getElementById('form-login');
+  
+  // Botones recuperar
+  const btnCerrarRecuperar = document.getElementById('btn-cerrar-recuperar');
+  const btnVolverLogin = document.getElementById('btn-volver-login');
+  const formRecuperar = document.getElementById('form-recuperar');
+  
+  // Toggle visibilidad contraseña login
+  document.getElementById('btn-toggle-login-pass')?.addEventListener('click', () => {
+    const inp = document.getElementById('login-pass');
+    if (inp) inp.type = inp.type === 'password' ? 'text' : 'password';
+  });
+  
+  // Abrir modal login desde header
+  btnCrearCuenta?.addEventListener('click', () => {
+    vistaCuestionario.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  });
+  
+  btnIniciarSesion?.addEventListener('click', () => {
+    modalLogin.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  });
+  
+  // Cerrar modal login
+  btnCerrarLogin?.addEventListener('click', () => {
+    modalLogin.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  });
+  
+  // Ir a formulario de registro desde login
+  btnIrRegistro?.addEventListener('click', () => {
+    modalLogin.style.display = 'none';
+    vistaCuestionario.style.display = 'flex';
+  });
+  
+  // Recuperar contraseña
+  btnRecuperarPass?.addEventListener('click', () => {
+    modalLogin.style.display = 'none';
+    modalRecuperar.style.display = 'flex';
+  });
+  
+  // Cerrar modal recuperar
+  btnCerrarRecuperar?.addEventListener('click', () => {
+    modalRecuperar.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  });
+  
+  // Volver a login desde recuperar
+  btnVolverLogin?.addEventListener('click', () => {
+    modalRecuperar.style.display = 'none';
+    modalLogin.style.display = 'flex';
+  });
+  
+  // Submit login
+  formLogin?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-pass').value;
+    
+    try {
+      const btnSubmit = formLogin.querySelector('button[type="submit"]');
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = 'Accediendo...';
+      
+      await login(email, pass);
+      alert('¡Bienvenido! Redirigiendo...');
+      setTimeout(() => { location.href = './dashboard.html'; }, 1500);
+    } catch (err) {
+      alert('Error: ' + (err.message || 'Credenciales inválidas'));
+      formLogin.querySelector('button[type="submit"]').disabled = false;
+      formLogin.querySelector('button[type="submit"]').innerText = 'Acceder';
+    }
+  });
+  
+  // Submit recuperar contraseña
+  formRecuperar?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('recuperar-email').value;
+    
+    try {
+      const btnSubmit = formRecuperar.querySelector('button[type="submit"]');
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = 'Enviando...';
+      
+      await resetPassword(email);
+      alert('Email de recuperación enviado. Revisa tu bandeja.');
+      modalRecuperar.style.display = 'none';
+      modalLogin.style.display = 'flex';
+      formRecuperar.reset();
+      btnSubmit.disabled = false;
+      btnSubmit.innerText = 'Enviar email';
+    } catch (err) {
+      alert('Error: ' + (err.message || 'No se pudo enviar el email'));
+      formRecuperar.querySelector('button[type="submit"]').disabled = false;
+      formRecuperar.querySelector('button[type="submit"]').innerText = 'Enviar email';
+    }
+  });
+  
+  // Cerrar modales al clickear afuera
+  modalLogin?.addEventListener('click', (e) => {
+    if (e.target === modalLogin) {
+      modalLogin.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+  });
+  
+  modalRecuperar?.addEventListener('click', (e) => {
+    if (e.target === modalRecuperar) {
+      modalRecuperar.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════
 // DASHBOARD — Renderiza plan nutricional desde caché
 // ══════════════════════════════════════════════════════════
 
 async function initDashboard() {
   _initMenuLateral();
   _initFiltrosBlog();
+  
+  // Botón de logout
+  document.getElementById('btn-logout')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+      const resultado = await logout();
+      if (resultado) {
+        location.href = './index.html';
+      }
+    }
+  });
 
   const perfil = obtenerCache('perfil_usuario');
 
