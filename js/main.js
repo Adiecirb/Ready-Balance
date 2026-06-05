@@ -1,4 +1,4 @@
-// main.js — Router SPA + FASE 5: tracker diario + estadísticas
+// main.js — Router SPA + FASE 6: reportes PDF
 
 import { cargarDatos }         from './config.js';
 import { guardarCache, obtenerCache } from './cache.js';
@@ -17,6 +17,7 @@ import {
   toggleComidaCompletada, guardarPesoDia,
   guardarNotaDia, estadisticasSemana, historialPesos
 } from './tracker.js';
+import { generarReportePlan, generarReporteProgreso } from './reports.js';
 
 // ── Router ────────────────────────────────────────────────
 const pagina = location.pathname.split('/').pop() || 'index.html';
@@ -632,6 +633,28 @@ function _renderAvance(perfil, el) {
       }).join('')}
     </div>`;
   el.appendChild(secMacros);
+
+  // ── Botón Reporte de Progreso PDF ────────────────────
+  const btnWrap = document.createElement('div');
+  btnWrap.className = 'rb-pdf-wrap';
+  btnWrap.innerHTML = `
+    <button class="rb-pdf-btn rb-pdf-btn--oscuro" id="btn-pdf-progreso">
+      📊 Descargar Reporte de Progreso
+    </button>`;
+  el.appendChild(btnWrap);
+
+  el.querySelector('#btn-pdf-progreso').addEventListener('click', async () => {
+    const btn = el.querySelector('#btn-pdf-progreso');
+    btn.disabled = true; btn.textContent = '⏳ Generando PDF...';
+    try {
+      await generarReporteProgreso(perfil, stats);
+    } catch (err) {
+      console.error('PDF Progreso:', err);
+      alert('Error al generar el PDF. Verifica que jsPDF esté cargado.');
+    } finally {
+      btn.disabled = false; btn.innerHTML = '📊 Descargar Reporte de Progreso';
+    }
+  });
 }
 
 function _statCard(emoji, valor, label) {
@@ -716,6 +739,33 @@ function _renderPerfil(perfil, el) {
     grid.appendChild(item);
   });
   el.appendChild(grid);
+
+  // ── Botón Reporte PDF ─────────────────────────────────
+  const btnWrap = document.createElement('div');
+  btnWrap.className = 'rb-pdf-wrap';
+  btnWrap.innerHTML = `
+    <button class="rb-pdf-btn" id="btn-pdf-plan">
+      📄 Descargar Plan en PDF
+    </button>`;
+  el.appendChild(btnWrap);
+
+  el.querySelector('#btn-pdf-plan').addEventListener('click', async () => {
+    const btn = el.querySelector('#btn-pdf-plan');
+    btn.disabled = true; btn.textContent = '⏳ Generando PDF...';
+    try {
+      // Adjuntar lista de compra precalculada al perfil
+      const perfilConLista = {
+        ...perfil,
+        _listaCompra: calcularListaCompra(perfil.comidas ?? [])
+      };
+      await generarReportePlan(perfilConLista);
+    } catch (err) {
+      console.error('PDF Plan:', err);
+      alert('Error al generar el PDF. Verifica que jsPDF esté cargado.');
+    } finally {
+      btn.disabled = false; btn.innerHTML = '📄 Descargar Plan en PDF';
+    }
+  });
 }
 
 function _renderSinPlan() {
