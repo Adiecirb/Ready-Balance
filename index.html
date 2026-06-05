@@ -14,8 +14,8 @@
             <h1>Ready Balance</h1>
         </div>
         <div class="botones-auth">
-            <button class="btn-secundario">Crear cuenta</button>
-            <button class="btn-primario">Iniciar sesión</button>
+            <button id="btn-crear-cuenta" class="btn-secundario">Crear cuenta</button>
+            <button id="btn-iniciar-sesion" class="btn-primario">Iniciar sesión</button>
         </div>
     </header>
 
@@ -38,7 +38,7 @@
             <button id="btn-abrir-cuestionario" class="btn-accion-grande">START NOW</button>
         </div>
         <div class="imagen-iniciar">
-            <img src="/img/celular.png" alt="App Ready Balance en celular" class="img-hero">
+            <img src="./img/celular.png" alt="App Ready Balance en celular" class="img-hero">
         </div>
     </section>
 
@@ -84,21 +84,21 @@
             
             <div class="paso-item">
                 <div class="img-contenedor">
-                    <img src="./image/paso1.png" alt="Crea tu cuenta">
+                    <img src="./img/paso1.png" alt="Crea tu cuenta">
                 </div>
                 <h3>Crea tu cuenta</h3>
             </div>
 
             <div class="paso-item">
                 <div class="img-contenedor">
-                    <img src="./image/paso2.png" alt="Define tu objetivo">
+                    <img src="./img/paso2.png" alt="Define tu objetivo">
                 </div>
                 <h3>Define tu objetivo</h3>
             </div>
 
             <div class="paso-item">
                 <div class="img-contenedor">
-                    <img src="./image/paso3.png" alt="Recibe tu plan">
+                    <img src="./img/paso3.png" alt="Recibe tu plan">
                 </div>
                 <h3>Recibe tu plan</h3>
             </div>
@@ -518,7 +518,69 @@
         </div>
     </section>
 
-   <script type="module" src="./js/main.js"></script>
+    <!-- ╔════════════════════════════════════════════════╗ -->
+    <!-- ║ MODAL LOGIN                                    ║ -->
+    <!-- ╚════════════════════════════════════════════════╝ -->
+    <section id="modal-login" class="vista-onboarding" style="display: none;">
+        <div class="contenedor-modal" style="width: 100%; max-width: 400px; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+            <button id="btn-cerrar-login" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 1.8rem; cursor: pointer;">✕</button>
+            
+            <h2 style="font-size: 1.8rem; color: #1A3636; margin-bottom: 10px; text-align: center;">Iniciar Sesión</h2>
+            <p style="color: #8C9BA5; text-align: center; margin-bottom: 30px; font-size: 0.95rem;">Accede a tu plan personalizado</p>
+            
+            <form id="form-login" style="display: flex; flex-direction: column; gap: 16px;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #1A3636; margin-bottom: 8px; font-size: 0.9rem;">Email</label>
+                    <input id="login-email" type="email" placeholder="tu@email.com" style="width: 100%; padding: 12px 16px; border: 2px solid #EEEEEE; border-radius: 12px; font-size: 1rem; font-family: inherit;" required>
+                </div>
+                
+                <div>
+                    <label style="display: block; font-weight: 600; color: #1A3636; margin-bottom: 8px; font-size: 0.9rem;">Contraseña</label>
+                    <div style="position: relative;">
+                        <input id="login-pass" type="password" placeholder="••••••••" style="width: 100%; padding: 12px 16px; border: 2px solid #EEEEEE; border-radius: 12px; font-size: 1rem; font-family: inherit;" required>
+                        <button type="button" id="btn-toggle-login-pass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #8C9BA5;">👁️</button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primario" style="padding: 14px 20px; margin-top: 10px; font-weight: bold; border: none; cursor: pointer;">Acceder</button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 20px; color: #8C9BA5; font-size: 0.9rem;">
+                ¿Olvidaste tu contraseña? 
+                <button id="btn-recuperar-pass" style="background: none; border: none; color: #F09A59; font-weight: 600; cursor: pointer;">Recupérala aquí</button>
+            </p>
+            
+            <p style="text-align: center; margin-top: 20px; color: #8C9BA5; font-size: 0.9rem;">
+                ¿No tienes cuenta?
+                <button id="btn-ir-registro" style="background: none; border: none; color: #F09A59; font-weight: 600; cursor: pointer;">Regístrate</button>
+            </p>
+        </div>
+    </section>
 
+    <!-- ╔════════════════════════════════════════════════╗ -->
+    <!-- ║ MODAL RECUPERACIÓN CONTRASEÑA                 ║ -->
+    <!-- ╚════════════════════════════════════════════════╝ -->
+    <section id="modal-recuperar" class="vista-onboarding" style="display: none;">
+        <div class="contenedor-modal" style="width: 100%; max-width: 400px; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+            <button id="btn-cerrar-recuperar" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 1.8rem; cursor: pointer;">✕</button>
+            
+            <h2 style="font-size: 1.8rem; color: #1A3636; margin-bottom: 10px; text-align: center;">Recuperar Contraseña</h2>
+            <p style="color: #8C9BA5; text-align: center; margin-bottom: 30px; font-size: 0.95rem;">Te enviaremos un email para resetearla</p>
+            
+            <form id="form-recuperar" style="display: flex; flex-direction: column; gap: 16px;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #1A3636; margin-bottom: 8px; font-size: 0.9rem;">Email</label>
+                    <input id="recuperar-email" type="email" placeholder="tu@email.com" style="width: 100%; padding: 12px 16px; border: 2px solid #EEEEEE; border-radius: 12px; font-size: 1rem; font-family: inherit;" required>
+                </div>
+                
+                <button type="submit" class="btn-primario" style="padding: 14px 20px; margin-top: 10px; font-weight: bold; border: none; cursor: pointer;">Enviar email</button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 20px; color: #8C9BA5; font-size: 0.9rem;">
+                <button id="btn-volver-login" style="background: none; border: none; color: #F09A59; font-weight: 600; cursor: pointer;">Volver a iniciar sesión</button>
+            </p>
+        </div>
+    </section>
+<script type="module" src="./js/main.js"></script>
 </body>
 </html>
