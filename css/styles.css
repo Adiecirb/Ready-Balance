@@ -1614,3 +1614,216 @@ body {
     .rb-macro-card  { min-width: 80px; padding: 10px 12px; }
     .rb-perfil-grid { grid-template-columns: 1fr; }
 }
+
+/*  Tracker diario + estadísticas ─────────────── */
+
+/* ── Resumen de hoy (anillo + macros) ───────────────────── */
+.rb-hoy-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+/* Anillo de progreso calórico */
+.rb-anillo-wrap { position: relative; width: 110px; height: 110px; flex-shrink: 0; }
+.rb-anillo-svg  { transform: rotate(-90deg); }
+.rb-anillo-bg   { fill: none; stroke: #EEEEEE; stroke-width: 10; }
+.rb-anillo-fill { fill: none; stroke: #6CBE71; stroke-width: 10;
+                  stroke-linecap: round; transition: stroke-dashoffset 0.7s ease; }
+.rb-anillo-texto {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+}
+.rb-anillo-valor { font-size: 1.3rem; font-weight: 800; color: #1A3636; line-height: 1; }
+.rb-anillo-label { font-size: 0.68rem; color: #8C9BA5; margin-top: 2px; }
+
+/* Barras de macros del día */
+.rb-macros-dia { display: flex; flex-direction: column; gap: 8px; }
+.rb-macro-row  { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; }
+.rb-macro-row-label { width: 70px; color: #6B7280; flex-shrink: 0; }
+.rb-macro-row-bar   { flex: 1; height: 8px; background: #EEEEEE; border-radius: 8px; overflow: hidden; }
+.rb-macro-row-fill  { height: 100%; border-radius: 8px; transition: width 0.5s ease; }
+.rb-macro-row-val   { width: 72px; text-align: right; color: #1A3636; font-weight: 600; flex-shrink: 0; }
+
+/* Colores de cada macro */
+.fill-proteina      { background: #F09A59; }
+.fill-carbos        { background: #6CBE71; }
+.fill-grasas        { background: #5BA4CF; }
+
+/* ── Checklist de comidas ────────────────────────────────── */
+.rb-checklist       { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+
+.rb-check-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: box-shadow 0.2s, background 0.2s;
+    border: 2px solid transparent;
+    user-select: none;
+}
+.rb-check-item:hover          { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+.rb-check-item.completada     { background: #EAF4F4; border-color: #6CBE71; }
+
+.rb-check-circulo {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid #DDDDDD;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+.rb-check-item.completada .rb-check-circulo {
+    background: #6CBE71; border-color: #6CBE71; color: #fff;
+}
+
+.rb-check-info    { flex: 1; }
+.rb-check-nombre  { font-weight: 700; color: #1A3636; font-size: 0.95rem; }
+.rb-check-macros  { font-size: 0.76rem; color: #8C9BA5; margin-top: 2px; }
+.rb-check-kcal    { font-size: 0.9rem; font-weight: 700; color: #6CBE71; }
+
+/* ── Gráfica de barras semanal ───────────────────────────── */
+.rb-grafica-wrap {
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+.rb-grafica-barras {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 130px;
+    padding: 0 4px;
+    min-width: 280px;
+}
+.rb-barra-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+}
+.rb-barra-bg {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+}
+.rb-barra-fill {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    background: #6CBE71;
+    transition: height 0.6s ease;
+    min-height: 3px;
+}
+.rb-barra-fill.vacia { background: #EEEEEE; }
+.rb-barra-label { font-size: 0.68rem; color: #8C9BA5; text-align: center; }
+.rb-barra-val   { font-size: 0.7rem; color: #1A3636; font-weight: 600; }
+
+/* Línea de meta en la gráfica */
+.rb-meta-line-wrap { position: relative; }
+.rb-meta-line      { border-top: 2px dashed #F09A59; margin-bottom: 4px; }
+.rb-meta-etiqueta  { font-size: 0.72rem; color: #F09A59; text-align: right; }
+
+/* ── Peso corporal ───────────────────────────────────────── */
+.rb-peso-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 8px;
+}
+.rb-peso-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 2px solid #EEEEEE;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #1A3636;
+}
+.rb-peso-input:focus { outline: none; border-color: #6CBE71; }
+.rb-peso-btn {
+    padding: 10px 20px;
+    background: #6CBE71;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.rb-peso-btn:hover { background: #27ae60; }
+
+/* ── Tendencia de peso ───────────────────────────────────── */
+.rb-tendencia {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 0.88rem;
+    color: #6B7280;
+}
+.rb-tendencia-valor { font-weight: 700; font-size: 1rem; }
+.rb-tendencia-valor.baja  { color: #6CBE71; }
+.rb-tendencia-valor.sube  { color: #F09A59; }
+.rb-tendencia-valor.igual { color: #5BA4CF; }
+
+/* ── Cards de estadísticas ───────────────────────────────── */
+.rb-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.rb-stat-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+    text-align: center;
+}
+.rb-stat-emoji  { font-size: 1.6rem; }
+.rb-stat-valor  { font-size: 1.4rem; font-weight: 800; color: #1A3636; margin: 4px 0 2px; display: block; }
+.rb-stat-label  { font-size: 0.78rem; color: #8C9BA5; }
+
+/* ── Nota del día ────────────────────────────────────────── */
+.rb-nota-area {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #EEEEEE;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: #1A3636;
+    resize: none;
+    box-sizing: border-box;
+    margin-top: 8px;
+}
+.rb-nota-area:focus { outline: none; border-color: #6CBE71; }
+.rb-nota-btn {
+    margin-top: 8px;
+    padding: 8px 20px;
+    background: #2B3A4A;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+/* ── Responsivo ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .rb-hoy-grid    { grid-template-columns: 1fr; justify-items: center; }
+    .rb-stats-grid  { grid-template-columns: 1fr 1fr; }
+    .rb-anillo-wrap { width: 90px; height: 90px; }
+    .rb-anillo-valor{ font-size: 1.1rem; }
+}
