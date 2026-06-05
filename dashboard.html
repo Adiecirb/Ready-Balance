@@ -1,112 +1,103 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Ready Balance</title>
-  <link rel="stylesheet" href="./css/styles.css">
-  <!-- jsPDF CDN — necesario para reportes PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Planes - Ready Balance</title>
+    <meta name="description" content="Tu plan nutricional personalizado">
+    <link rel="stylesheet" href="./css/styles.css">
+    <!-- jsPDF para reportes PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body class="fondo-dashboard">
 
-  <!-- Overlay + Sidebar -->
-  <div class="overlay-menu" id="overlay-menu"></div>
+    <div class="overlay-menu" id="overlay-menu"></div>
 
-  <aside class="sidebar-menu" id="sidebar-menu">
-    <div class="sidebar-header">
-      <h3>Menú</h3>
-      <button id="btn-cerrar-menu" class="icono-btn">✕</button>
-    </div>
-    <ul class="sidebar-links">
-      <li><a href="./dashboard.html">Mis Planes</a></li>
-      <li><a href="./blogs.html">Blogs</a></li>
-      <li><a href="#" id="btn-logout" class="texto-rojo">Cerrar Sesión</a></li>
-    </ul>
-  </aside>
+    <aside class="sidebar-menu" id="sidebar-menu">
+        <div class="sidebar-header">
+            <h3>Menú</h3>
+            <button id="btn-cerrar-menu" class="icono-btn">✕</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a href="./dashboard.html" class="activo">Mis Planes</a></li>
+            <li><a href="./blogs.html">Blog</a></li>
+            <li><a href="#" data-tab="avance" class="sidebar-tab">Mi Avance</a></li>
+            <li><a href="#" data-tab="inventario" class="sidebar-tab">Inventario</a></li>
+            <li><a href="#" id="btn-logout" class="texto-rojo">Cerrar Sesión</a></li>
+        </ul>
+    </aside>
 
-  <!-- Navbar con tabs -->
-  <nav class="navbar-dashboard">
-    <div class="nav-izq">
-      <button id="btn-menu-lateral" class="icono-btn">
-        <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636"
-          stroke-width="2" fill="none" stroke-linecap="round">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6"  x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-    </div>
+    <nav class="navbar-dashboard">
+        <div class="nav-izq">
+            <button id="btn-menu-lateral" class="icono-btn" aria-label="Abrir menú">
+                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6"  x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="nav-centro">
+            <a href="#" class="nav-link activo" data-tab="hoy">Hoy</a>
+            <a href="#" class="nav-link" data-tab="dietas">Mis Dietas</a>
+            <a href="#" class="nav-link" data-tab="compra">Compra</a>
+            <a href="#" class="nav-link" data-tab="perfil">Perfil</a>
+            <a href="#" class="nav-link" data-tab="avance">Avance</a>
+            <a href="#" class="nav-link" data-tab="inventario">Inventario</a>
+        </div>
+        <div class="nav-der">
+            <button class="icono-btn avatar-usuario" id="btn-avatar" aria-label="Mi perfil">
+                <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636" stroke-width="2" fill="none" stroke-linecap="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </button>
+        </div>
+    </nav>
 
-    <div class="nav-centro">
-      <a href="#" class="nav-link activo" data-tab="hoy">Hoy</a>
-      <a href="#" class="nav-link" data-tab="dietas">Mis Dietas</a>
-      <a href="#" class="nav-link" data-tab="compra">Compra</a>
-      <a href="#" class="nav-link" data-tab="perfil">Perfil</a>
-      <a href="#" class="nav-link" data-tab="avance">Avance</a>
-    </div>
+    <main class="contenedor-principal-planes" id="contenido-principal">
+        <div class="rb-loading" id="rb-loading">
+            <div class="spinner"></div>
+            <p>Cargando tu plan...</p>
+        </div>
+    </main>
 
-    <div class="nav-der">
-      <button class="icono-btn avatar-usuario">
-        <svg viewBox="0 0 24 24" width="28" height="28" stroke="#1A3636"
-          stroke-width="2" fill="none" stroke-linecap="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-      </button>
-    </div>
-  </nav>
+    <!-- ── Templates (clonados por JS) ─────────────────── -->
+    <template id="tpl-macro-card">
+        <div class="rb-macro-card">
+            <span class="rb-macro-emoji"></span>
+            <strong class="rb-macro-valor"></strong>
+            <small class="rb-macro-unidad"></small>
+            <span class="rb-macro-label"></span>
+        </div>
+    </template>
 
-  <!-- Spinner inicial -->
-  <div id="rb-loading" style="display:flex;justify-content:center;
-    align-items:center;height:60vh;font-size:2rem;">⏳</div>
+    <template id="tpl-item-alimento">
+        <div class="rb-item-alimento">
+            <span class="rb-item-emoji"></span>
+            <div class="rb-item-info">
+                <strong class="rb-item-nombre"></strong>
+                <small class="rb-item-macros"></small>
+            </div>
+            <div class="rb-item-gramos">
+                <strong class="rb-gramos-val"></strong>
+                <small class="rb-gramos-unidad"></small>
+            </div>
+        </div>
+    </template>
 
-  <!-- Área de contenido dinámica -->
-  <main class="contenedor-principal-planes" id="contenido-principal"></main>
+    <template id="tpl-bloque-comida">
+        <section class="bloque-comida rb-bloque">
+            <div class="rb-comida-header">
+                <h2 class="titulo-comida rb-comida-nombre"></h2>
+                <span class="rb-comida-kcal"></span>
+            </div>
+            <div class="rb-comida-objetivos"></div>
+            <div class="contenedor-items-comida rb-items"></div>
+            <div class="rb-comida-totales"></div>
+        </section>
+    </template>
 
-  <!-- ── Templates (no se renderizan, solo se clonan) ── -->
-
-  <!-- Template: bloque de comida -->
-  <template id="tpl-bloque-comida">
-    <section class="bloque-comida">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;">
-        <h2 class="titulo-comida rb-comida-nombre"></h2>
-        <span class="rb-comida-kcal" style="color:#27ae60;font-weight:700;font-size:0.9rem;"></span>
-      </div>
-      <p class="rb-comida-objetivos"
-        style="color:#8C9BA5;font-size:0.8rem;margin-bottom:10px;"></p>
-      <div class="rb-items"></div>
-      <p class="rb-comida-totales"
-        style="color:#27ae60;font-size:0.8rem;margin-top:10px;font-weight:600;border-top:1px solid #eee;padding-top:6px;"></p>
-    </section>
-  </template>
-
-  <!-- Template: ítem de alimento -->
-  <template id="tpl-item-alimento">
-    <div class="rb-item-fila" style="display:flex;align-items:center;
-      gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;">
-      <span class="rb-item-emoji" style="font-size:1.4rem;"></span>
-      <div style="flex:1;">
-        <strong class="rb-item-nombre" style="font-size:0.9rem;color:#1A3636;"></strong>
-        <small class="rb-item-macros" style="display:block;color:#8C9BA5;font-size:0.75rem;"></small>
-      </div>
-      <div style="text-align:right;">
-        <span class="rb-gramos-val" style="font-weight:700;color:#2c3e50;font-size:0.95rem;"></span>
-        <span class="rb-gramos-unidad" style="color:#8C9BA5;font-size:0.8rem;margin-left:2px;"></span>
-      </div>
-    </div>
-  </template>
-
-  <!-- Template: card de macro (banner) -->
-  <template id="tpl-macro-card">
-    <div class="rb-macro-card">
-      <span class="rb-macro-emoji"></span>
-      <strong class="rb-macro-valor"></strong>
-      <small class="rb-macro-unidad"></small>
-      <span class="rb-macro-label"></span>
-    </div>
-  </template>
-
-  <script type="module" src="./js/main.js"></script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>

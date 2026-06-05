@@ -1,490 +1,338 @@
-// reports.js — Generación de reportes PDF con jsPDF (sin dependencias de build)
-// Usa jsPDF desde CDN: https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js
+// reports.js — Generación de PDF con jsPDF (cargado vía CDN en dashboard.html)
+// Requiere: <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
 
-// ── Colores del proyecto ──────────────────────────────────
-const C = {
-  verde:      [39, 174, 96],
-  verdeOsc:   [28, 125, 69],
-  oscuro:     [44, 62, 80],
-  gris:       [140, 155, 165],
-  grisClaoro: [238, 238, 238],
-  blanco:     [255, 255, 255],
-  naranja:    [240, 154, 89],
-  fondo:      [245, 250, 248]
-};
+import { log } from './config.js';
+
+// Colores del sistema
+const VERDE  = [108, 190, 113];
+const OSCURO = [26,  54,  54];
+const GRIS   = [140, 155, 165];
+const CLARO  = [234, 244, 244];
 
 // ── API pública ───────────────────────────────────────────
 
 /**
- * Genera y descarga el reporte PDF del plan nutricional.
- * @param {Object} perfil — perfil completo del usuario desde cache
+ * Genera PDF del plan nutricional completo (4 páginas).
  */
 export async function generarReportePlan(perfil) {
   const { jsPDF } = window.jspdf;
-  if (!jsPDF) { alert('Error: jsPDF no cargó. Verifica tu conexión.'); return; }
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  const doc  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const ancho = doc.internal.pageSize.getWidth();   // 210 mm
-  let   y     = 0;
-
-  y = _portada(doc, perfil, ancho, y);
+  _paginaPortada(doc, perfil);
   doc.addPage();
-  y = _resumenNutricional(doc, perfil, ancho, 15);
+  _paginaResumenNutricional(doc, perfil);
   doc.addPage();
-  y = _planAlimenticio(doc, perfil, ancho, 15);
+  _paginaPlanComidas(doc, perfil);
+  doc.addPage();
+  _paginaListaCompra(doc, perfil);
 
-  if ((perfil.comidas ?? []).length) {
-    doc.addPage();
-    y = _listaCompra(doc, perfil, ancho, 15);
-  }
-
-  _pie(doc, ancho);
-
-  const nombre = (perfil.nombre ?? 'plan').replace(/\s+/g, '_');
-  doc.save(`ReadyBalance_${nombre}_${_fechaHoy()}.pdf`);
+  const nombre  = (perfil.nombre ?? 'usuario').replace(/\s+/g, '_');
+  const fecha   = new Date().toISOString().split('T')[0];
+  doc.save(`ReadyBalance_${nombre}_${fecha}.pdf`);
+  log.info('PDF plan generado');
 }
 
 /**
- * Genera y descarga el reporte semanal de progreso.
- * @param {Object} perfil — perfil completo
- * @param {Object} stats  — estadísticas de tracker.js → estadisticasSemana()
+ * Genera PDF de reporte de progreso semanal (3 páginas).
  */
 export async function generarReporteProgreso(perfil, stats) {
   const { jsPDF } = window.jspdf;
-  if (!jsPDF) { alert('Error: jsPDF no cargó.'); return; }
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  const doc   = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const ancho  = doc.internal.pageSize.getWidth();
-  let   y      = 0;
-
-  y = _portadaProgreso(doc, perfil, ancho, y);
+  _paginaProgresoPortada(doc, perfil, stats);
   doc.addPage();
-  y = _resumenSemana(doc, perfil, stats, ancho, 15);
+  _paginaEstadisticasSemana(doc, perfil, stats);
   doc.addPage();
-  y = _tablaDiaria(doc, stats, ancho, 15);
+  _paginaDiasDetalle(doc, stats);
 
-  _pie(doc, ancho);
-
-  const nombre = (perfil.nombre ?? 'progreso').replace(/\s+/g, '_');
-  doc.save(`ReadyBalance_Progreso_${nombre}_${_fechaHoy()}.pdf`);
+  const nombre = (perfil.nombre ?? 'usuario').replace(/\s+/g, '_');
+  const fecha  = new Date().toISOString().split('T')[0];
+  doc.save(`ReadyBalance_Progreso_${nombre}_${fecha}.pdf`);
+  log.info('PDF progreso generado');
 }
 
-// ══════════════════════════════════════════════════════════
-// SECCIONES INTERNAS
-// ══════════════════════════════════════════════════════════
+// ── Páginas del plan ──────────────────────────────────────
 
-// ── Portada Plan ──────────────────────────────────────────
-function _portada(doc, perfil, ancho, y) {
-  // Fondo superior
-  doc.setFillColor(...C.verde);
-  doc.rect(0, 0, ancho, 80, 'F');
+function _paginaPortada(doc, perfil) {
+  _fondo(doc);
+  _logoTexto(doc, 'PLAN NUTRICIONAL', 'Ready Balance');
 
-  // Logo texto
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(28);
-  doc.setTextColor(...C.blanco);
-  doc.text('Ready', 20, 30);
-  doc.setTextColor(...C.naranja);
-  doc.text('Balance', 52, 30);
-
-  doc.setFontSize(11);
-  doc.setTextColor(...C.blanco);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Plan Nutricional Personalizado', 20, 40);
-
-  // Nombre del usuario
-  const nombre = perfil.nombre ?? 'Usuario';
-  doc.setFontSize(22);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...C.blanco);
-  doc.text(nombre, 20, 58);
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Generado el ${_fechaHumana()}`, 20, 68);
-
-  y = 95;
-
-  // Cards de métricas principales
   const macros = perfil.macros ?? {};
   const imc    = perfil.imc    ?? {};
+  const y0     = 90;
 
-  const cards = [
-    { label: 'Calorías',  valor: macros.calorias ?? '—', unidad: 'kcal' },
-    { label: 'Proteína',  valor: macros.proteina ?? '—', unidad: 'g' },
-    { label: 'Carbos',    valor: macros.carbohidratos ?? '—', unidad: 'g' },
-    { label: 'Grasas',    valor: macros.grasas ?? '—', unidad: 'g' },
-    { label: 'IMC',       valor: imc.imc ?? '—', unidad: imc.clasificacion?.slice(0,8) ?? '' },
-    { label: 'TMB',       valor: perfil.tmb ? Math.round(perfil.tmb) : '—', unidad: 'kcal' }
-  ];
-
-  const cw = (ancho - 40) / 3;
-  cards.forEach((c, i) => {
-    const col = i % 3;
-    const row = Math.floor(i / 3);
-    const x   = 20 + col * cw;
-    const cy  = y + row * 28;
-
-    doc.setFillColor(...C.fondo);
-    doc.roundedRect(x, cy, cw - 4, 24, 3, 3, 'F');
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.setTextColor(...C.verde);
-    doc.text(String(c.valor), x + (cw - 4) / 2, cy + 11, { align: 'center' });
-
-    doc.setFontSize(7);
-    doc.setTextColor(...C.gris);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${c.label} ${c.unidad}`, x + (cw - 4) / 2, cy + 19, { align: 'center' });
-  });
-
-  y += 62;
-
-  // Info personal
-  y = _seccionTitulo(doc, 'Datos Personales', 20, y, ancho);
+  _seccion(doc, 'Datos del usuario', y0);
   const datos = [
-    ['Género',    _capitalizar(perfil.genero    ?? '—')],
-    ['Edad',      perfil.edad     ? perfil.edad     + ' años' : '—'],
-    ['Peso',      perfil.peso     ? perfil.peso     + ' kg'   : '—'],
-    ['Estatura',  perfil.estatura ? perfil.estatura + ' cm'   : '—'],
-    ['Objetivo',  _labelObjetivo(perfil.objetivo)],
-    ['Actividad', _labelActividad(perfil.actividad)]
+    ['Nombre',    perfil.nombre    ?? '—'],
+    ['Género',    perfil.genero    ?? '—'],
+    ['Edad',      perfil.edad ? perfil.edad + ' años' : '—'],
+    ['Peso',      perfil.peso ? perfil.peso + ' kg' : '—'],
+    ['Estatura',  perfil.estatura ? perfil.estatura + ' cm' : '—'],
+    ['Objetivo',  _labelObj(perfil.objetivo)],
+    ['Actividad', _labelAct(perfil.actividad)],
+    ['IMC',       imc.imc ? `${imc.imc} — ${imc.clasificacion}` : '—'],
+    ['TMB',       perfil.tmb ? Math.round(perfil.tmb) + ' kcal' : '—'],
+    ['TDEE',      perfil.tdee ? perfil.tdee + ' kcal' : '—']
   ];
-  y = _tablaDoble(doc, datos, 20, y, ancho);
-  return y;
+
+  _tabla2col(doc, datos, y0 + 10);
+
+  _seccion(doc, 'Macros objetivo / día', 175);
+  _fila4macros(doc, macros, 185);
+
+  _pie(doc, 1);
 }
 
-// ── Portada Progreso ──────────────────────────────────────
-function _portadaProgreso(doc, perfil, ancho, y) {
-  doc.setFillColor(...C.oscuro);
-  doc.rect(0, 0, ancho, 80, 'F');
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(28);
-  doc.setTextColor(...C.blanco);
-  doc.text('Ready', 20, 30);
-  doc.setTextColor(...C.naranja);
-  doc.text('Balance', 52, 30);
-
-  doc.setFontSize(11);
-  doc.setTextColor(...C.blanco);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Reporte de Progreso Semanal', 20, 40);
-
-  doc.setFontSize(22);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...C.blanco);
-  doc.text(perfil.nombre ?? 'Usuario', 20, 58);
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Generado el ${_fechaHumana()}`, 20, 68);
-
-  return 95;
-}
-
-// ── Resumen Nutricional ───────────────────────────────────
-function _resumenNutricional(doc, perfil, ancho, y) {
-  y = _seccionTitulo(doc, 'Resumen Nutricional', 20, y, ancho);
-
+function _paginaResumenNutricional(doc, perfil) {
+  _cabecera(doc, 'Resumen Nutricional');
   const macros = perfil.macros ?? {};
-  const rows   = [
-    ['Calorías objetivo',    `${macros.calorias ?? '—'} kcal/día`],
-    ['Proteína',             `${macros.proteina ?? '—'} g/día`],
-    ['Carbohidratos',        `${macros.carbohidratos ?? '—'} g/día`],
-    ['Grasas',               `${macros.grasas ?? '—'} g/día`],
-    ['TMB (Mifflin-St Jeor)',`${perfil.tmb ? Math.round(perfil.tmb) : '—'} kcal`],
-    ['TDEE',                 `${perfil.tdee ?? '—'} kcal`],
-    ['IMC',                  `${perfil.imc?.imc ?? '—'} — ${perfil.imc?.clasificacion ?? ''}`],
-    ['Déficit / Superávit',  _deltaCalories(perfil)]
-  ];
-  y = _tablaDoble(doc, rows, 20, y, ancho);
+  let y = 50;
 
-  // Barras de macros visuales
-  y += 8;
-  y = _seccionTitulo(doc, 'Distribución de Macronutrientes', 20, y, ancho);
-  const total = (macros.proteina ?? 0) * 4 + (macros.carbohidratos ?? 0) * 4 + (macros.grasas ?? 0) * 9;
+  doc.setFontSize(11).setTextColor(...OSCURO);
+  doc.text('Distribución de macronutrientes:', 20, y); y += 10;
 
-  const barData = [
-    { label: 'Proteína',       valor: macros.proteina ?? 0,      factor: 4, color: C.verde   },
-    { label: 'Carbohidratos',  valor: macros.carbohidratos ?? 0, factor: 4, color: C.naranja },
-    { label: 'Grasas',         valor: macros.grasas ?? 0,        factor: 9, color: [127,140,141] }
+  const barras = [
+    { label: 'Proteína',      valor: macros.proteina ?? 0,      unidad: 'g', pct: 0.30, color: [240, 154, 89] },
+    { label: 'Carbohidratos', valor: macros.carbohidratos ?? 0, unidad: 'g', pct: 0.50, color: VERDE },
+    { label: 'Grasas',        valor: macros.grasas ?? 0,        unidad: 'g', pct: 0.20, color: [91, 164, 207] }
   ];
 
-  barData.forEach(b => {
-    const kcal = b.valor * b.factor;
-    const pct  = total > 0 ? Math.round((kcal / total) * 100) : 0;
-    const bw   = (ancho - 80) * pct / 100;
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(...C.oscuro);
-    doc.text(`${b.label}`, 20, y + 5);
-    doc.text(`${pct}%`, ancho - 20, y + 5, { align: 'right' });
-
-    doc.setFillColor(...C.grisClaoro);
-    doc.roundedRect(60, y, ancho - 80, 6, 2, 2, 'F');
-    if (bw > 0) {
-      doc.setFillColor(...b.color);
-      doc.roundedRect(60, y, bw, 6, 2, 2, 'F');
-    }
-    y += 12;
+  barras.forEach(b => {
+    doc.setFontSize(10).setTextColor(...GRIS);
+    doc.text(`${b.label}: ${b.valor}${b.unidad}`, 20, y);
+    doc.setFillColor(...CLARO);
+    doc.roundedRect(65, y - 5, 110, 8, 2, 2, 'F');
+    doc.setFillColor(...b.color);
+    doc.roundedRect(65, y - 5, Math.round(110 * b.pct), 8, 2, 2, 'F');
+    doc.setTextColor(...OSCURO).setFontSize(9);
+    doc.text(`${Math.round(b.pct * 100)}%`, 180, y);
+    y += 16;
   });
 
-  return y;
+  y += 6;
+  _seccion(doc, 'Calorías totales', y); y += 12;
+  doc.setFontSize(28).setTextColor(...VERDE);
+  doc.text(`${macros.calorias ?? 0} kcal/día`, 105, y, { align: 'center' });
+
+  _pie(doc, 2);
 }
 
-// ── Plan Alimenticio ──────────────────────────────────────
-function _planAlimenticio(doc, perfil, ancho, y) {
-  y = _seccionTitulo(doc, 'Plan Alimenticio', 20, y, ancho);
-
+function _paginaPlanComidas(doc, perfil) {
+  _cabecera(doc, 'Plan de Alimentación');
   const comidas = perfil.comidas ?? [];
-  if (!comidas.length) {
-    doc.setFontSize(10);
-    doc.setTextColor(...C.gris);
-    doc.text('Sin plan generado.', 20, y + 6);
-    return y + 20;
-  }
+  let y = 50;
 
   comidas.forEach(comida => {
-    // Salto de página si queda poco espacio
-    if (y > 230) { doc.addPage(); y = 15; }
+    if (y > 250) { doc.addPage(); _cabecera(doc, 'Plan de Alimentación (cont.)'); y = 50; }
 
     // Header de comida
-    doc.setFillColor(...C.verdeOsc);
-    doc.roundedRect(20, y, ancho - 40, 10, 2, 2, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...C.blanco);
-    doc.text(comida.nombre, 26, y + 7);
-    doc.text(`${comida.calorias ?? 0} kcal`, ancho - 24, y + 7, { align: 'right' });
-    y += 14;
+    doc.setFillColor(...VERDE);
+    doc.roundedRect(15, y, 180, 9, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255).setFontSize(10).setFont(undefined, 'bold');
+    doc.text(`${comida.nombre} — ${comida.calorias} kcal`, 20, y + 6);
+    doc.setFont(undefined, 'normal');
+    y += 13;
 
     // Items
-    const items = comida.items ?? [];
-    if (!items.length) {
-      doc.setFontSize(9);
-      doc.setTextColor(...C.gris);
-      doc.text('Sin alimentos asignados.', 26, y + 4);
-      y += 10;
-    } else {
-      // Encabezado de tabla
-      _tablaHeaderSimple(doc, ['Alimento', 'Gramos', 'Kcal', 'P (g)', 'C (g)', 'G (g)'],
-        [20, 90, 120, 145, 163, 181], y, ancho);
-      y += 8;
+    (comida.items ?? []).forEach(item => {
+      if (y > 270) { doc.addPage(); _cabecera(doc, 'Plan de Alimentación (cont.)'); y = 50; }
+      doc.setTextColor(...OSCURO).setFontSize(9);
+      doc.text(`• ${item.nombre}`, 22, y);
+      doc.setTextColor(...GRIS).setFontSize(8);
+      doc.text(`${item.gramos}g  |  P: ${item.macros.proteina}g  C: ${item.macros.carbohidratos}g  G: ${item.macros.grasas}g  ${item.macros.calorias}kcal`, 80, y);
+      y += 7;
+    });
 
-      items.forEach((item, idx) => {
-        if (y > 265) { doc.addPage(); y = 15; }
-        doc.setFillColor(idx % 2 === 0 ? 248 : 255, idx % 2 === 0 ? 252 : 255, idx % 2 === 0 ? 250 : 255);
-        doc.rect(20, y - 1, ancho - 40, 7, 'F');
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8.5);
-        doc.setTextColor(...C.oscuro);
-        doc.text(_truncar(item.nombre, 32), 22, y + 4.5);
-        doc.text(`${item.gramos} ${item.unidad}`,       91, y + 4.5);
-        doc.text(`${item.macros?.calorias ?? 0}`,       121, y + 4.5);
-        doc.text(`${item.macros?.proteina ?? 0}`,       146, y + 4.5);
-        doc.text(`${item.macros?.carbohidratos ?? 0}`,  164, y + 4.5);
-        doc.text(`${item.macros?.grasas ?? 0}`,         182, y + 4.5);
-        y += 7;
-      });
-    }
-
-    // Totales reales de la comida
+    // Totales reales
     const tot = comida.totalesReales;
     if (tot) {
-      doc.setFillColor(...C.fondo);
-      doc.rect(20, y, ancho - 40, 8, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      doc.setTextColor(...C.verde);
-      doc.text(`Total real → ${tot.calorias} kcal | P: ${tot.proteina}g | C: ${tot.carbohidratos}g | G: ${tot.grasas}g`,
-        22, y + 5.5);
-      y += 10;
+      doc.setTextColor(...GRIS).setFontSize(8);
+      doc.text(`Total real: ${tot.calorias} kcal · P:${tot.proteina}g · C:${tot.carbohidratos}g · G:${tot.grasas}g`, 22, y);
+      y += 5;
     }
+    y += 6;
+  });
+
+  _pie(doc, 3);
+}
+
+function _paginaListaCompra(doc, perfil) {
+  _cabecera(doc, 'Lista de Compra — Semana');
+  let y = 50;
+
+  // Agrupar por categoría
+  const grupos = {};
+  (perfil.comidas ?? []).forEach(c => {
+    (c.items ?? []).forEach(item => {
+      if (!grupos[item.categoria]) grupos[item.categoria] = {};
+      if (!grupos[item.categoria][item.id]) {
+        grupos[item.categoria][item.id] = { nombre: item.nombre, gramos: 0, unidad: item.unidad };
+      }
+      grupos[item.categoria][item.id].gramos += item.gramosCompra * 7;
+    });
+  });
+
+  Object.entries(grupos).forEach(([cat, items]) => {
+    if (y > 260) { doc.addPage(); _cabecera(doc, 'Lista de Compra (cont.)'); y = 50; }
+    doc.setFontSize(10).setTextColor(...VERDE).setFont(undefined, 'bold');
+    doc.text(cat.toUpperCase(), 20, y); y += 8;
+    doc.setFont(undefined, 'normal');
+    Object.values(items).forEach(item => {
+      doc.setTextColor(...OSCURO).setFontSize(9);
+      doc.text(`□  ${item.nombre}`, 25, y);
+      doc.setTextColor(...GRIS);
+      doc.text(`${Math.round(item.gramos)} ${item.unidad}`, 155, y);
+      y += 7;
+    });
     y += 4;
   });
-  return y;
+
+  _pie(doc, 4);
 }
 
-// ── Lista de Compra ───────────────────────────────────────
-function _listaCompra(doc, perfil, ancho, y) {
-  y = _seccionTitulo(doc, 'Lista de Compra (7 días)', 20, y, ancho);
+// ── Páginas de progreso ───────────────────────────────────
 
-  // Importar calcularListaCompra en tiempo de ejecución (está en el módulo nutrition.js)
-  // Aquí recibimos los datos ya calculados desde main.js al llamar generarReportePlan
-  const lista = perfil._listaCompra ?? [];
+function _paginaProgresoPortada(doc, perfil, stats) {
+  _fondo(doc);
+  _logoTexto(doc, 'REPORTE DE PROGRESO', 'Ready Balance');
 
-  if (!lista.length) {
-    doc.setFontSize(10);
-    doc.setTextColor(...C.gris);
-    doc.text('Sin datos de compra disponibles.', 20, y + 6);
-    return y + 20;
-  }
-
-  _tablaHeaderSimple(doc, ['Alimento', 'Cantidad para la semana', 'Unidad'],
-    [20, 110, 165], y, ancho);
-  y += 8;
-
-  lista.forEach((item, idx) => {
-    if (y > 265) { doc.addPage(); y = 15; }
-    doc.setFillColor(idx % 2 === 0 ? 248 : 255, idx % 2 === 0 ? 252 : 255, idx % 2 === 0 ? 250 : 255);
-    doc.rect(20, y - 1, ancho - 40, 7, 'F');
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(...C.oscuro);
-    doc.text(_truncar(item.nombre, 40), 22, y + 4.5);
-    doc.text(`${item.gramosCompra}`, 111, y + 4.5);
-    doc.text(item.unidad, 166, y + 4.5);
-    y += 7;
-  });
-  return y + 10;
-}
-
-// ── Resumen Semana (Progreso) ─────────────────────────────
-function _resumenSemana(doc, perfil, stats, ancho, y) {
-  y = _seccionTitulo(doc, 'Estadísticas de la Semana', 20, y, ancho);
-
-  const macros = perfil.macros ?? {};
-  const rows   = [
-    ['Días registrados',   `${stats.diasRegistrados} de 7`],
-    ['Cumplimiento calórico', `${stats.cumplimiento}%`],
-    ['Prom. calorías/día', `${stats.promCalorias || '—'} kcal`],
-    ['Meta calórica',      `${macros.calorias ?? '—'} kcal/día`],
-    ['Peso actual',        stats.pesoActual  ? stats.pesoActual  + ' kg' : 'Sin registro'],
-    ['Peso inicial (semana)', stats.pesoInicial ? stats.pesoInicial + ' kg' : 'Sin registro'],
-    ['Tendencia de peso',  stats.tendenciaPeso !== null
-      ? (stats.tendenciaPeso > 0 ? '+' : '') + stats.tendenciaPeso + ' kg'
-      : 'Insuficiente datos']
+  const y0 = 90;
+  _seccion(doc, 'Resumen de la semana', y0);
+  const datos = [
+    ['Días registrados',    String(stats.diasRegistrados ?? 0)],
+    ['Cumplimiento',        (stats.cumplimiento ?? 0) + '%'],
+    ['Prom. calorías/día',  String(stats.promCalorias ?? 0) + ' kcal'],
+    ['Peso actual',         stats.pesoActual ? stats.pesoActual + ' kg' : '—'],
+    ['Peso inicial (7d)',   stats.pesoInicial ? stats.pesoInicial + ' kg' : '—'],
+    ['Tendencia',           stats.tendenciaPeso !== null ? (stats.tendenciaPeso > 0 ? '+' : '') + stats.tendenciaPeso + ' kg' : '—']
   ];
-  y = _tablaDoble(doc, rows, 20, y, ancho);
-  return y;
+  _tabla2col(doc, datos, y0 + 10);
+  _pie(doc, 1);
 }
 
-// ── Tabla Diaria (Progreso) ───────────────────────────────
-function _tablaDiaria(doc, stats, ancho, y) {
-  y = _seccionTitulo(doc, 'Registro Diario', 20, y, ancho);
+function _paginaEstadisticasSemana(doc, perfil, stats) {
+  _cabecera(doc, 'Estadísticas Semanales');
+  const macros = perfil.macros ?? {};
+  let y = 50;
 
-  _tablaHeaderSimple(doc,
-    ['Día', 'Calorías', 'Proteína (g)', 'Carbos (g)', 'Grasas (g)', 'Peso (kg)', 'Comidas ✓'],
-    [20, 55, 85, 120, 150, 175, 193], y, ancho);
-  y += 8;
+  const barras = [
+    { label: 'Proteína prom.',   valor: Math.round(stats.filas?.reduce((s,f)=>s+f.proteina,0)/(stats.diasRegistrados||1)), meta: macros.proteina ?? 1 },
+    { label: 'Carbos prom.',     valor: Math.round(stats.filas?.reduce((s,f)=>s+f.carbohidratos,0)/(stats.diasRegistrados||1)), meta: macros.carbohidratos ?? 1 },
+    { label: 'Grasas prom.',     valor: Math.round(stats.filas?.reduce((s,f)=>s+f.grasas,0)/(stats.diasRegistrados||1)), meta: macros.grasas ?? 1 },
+    { label: 'Calorías prom.',   valor: stats.promCalorias ?? 0, meta: macros.calorias ?? 1 }
+  ];
 
-  stats.filas.forEach((fila, idx) => {
-    if (y > 265) { doc.addPage(); y = 15; }
-    doc.setFillColor(idx % 2 === 0 ? 248 : 255, idx % 2 === 0 ? 252 : 255, idx % 2 === 0 ? 250 : 255);
-    doc.rect(20, y - 1, ancho - 40, 7, 'F');
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(...C.oscuro);
-    doc.text(fila.etiqueta,              22, y + 4.5);
-    doc.text(`${fila.calorias || '—'}`,  56, y + 4.5);
-    doc.text(`${fila.proteina || '—'}`,  86, y + 4.5);
-    doc.text(`${fila.carbohidratos || '—'}`, 121, y + 4.5);
-    doc.text(`${fila.grasas || '—'}`,    151, y + 4.5);
-    doc.text(fila.peso ? String(fila.peso) : '—', 176, y + 4.5);
-    doc.text(`${fila.completadas}`,      194, y + 4.5);
-    y += 7;
+  barras.forEach(b => {
+    const pct = Math.min(b.valor / b.meta, 1);
+    doc.setFontSize(10).setTextColor(...OSCURO);
+    doc.text(`${b.label}: ${b.valor}`, 20, y);
+    doc.setFillColor(...CLARO); doc.roundedRect(80, y-5, 100, 7, 1, 1, 'F');
+    doc.setFillColor(...VERDE); doc.roundedRect(80, y-5, Math.round(100*pct), 7, 1, 1, 'F');
+    doc.setFontSize(8).setTextColor(...GRIS);
+    doc.text(`/ ${b.meta}`, 185, y);
+    y += 16;
   });
-  return y + 10;
+
+  _pie(doc, 2);
 }
 
-// ── Pie de página ─────────────────────────────────────────
-function _pie(doc, ancho) {
-  const total = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= total; i++) {
-    doc.setPage(i);
-    doc.setFillColor(...C.verde);
-    doc.rect(0, 285, ancho, 12, 'F');
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(...C.blanco);
-    doc.text('Ready Balance — Nutrición de Precisión', 20, 292);
-    doc.text(`Página ${i} de ${total}`, ancho - 20, 292, { align: 'right' });
-  }
-}
+function _paginaDiasDetalle(doc, stats) {
+  _cabecera(doc, 'Detalle por Día');
+  let y = 50;
 
-// ══════════════════════════════════════════════════════════
-// HELPERS DE LAYOUT
-// ══════════════════════════════════════════════════════════
+  // Encabezado tabla
+  const cols = ['Día', 'Calorías', 'Prot.', 'Carb.', 'Grasas', 'Peso'];
+  const xs   = [18, 52, 85, 110, 135, 160];
+  doc.setFillColor(...VERDE);
+  doc.rect(15, y-6, 180, 9, 'F');
+  doc.setTextColor(255,255,255).setFontSize(8).setFont(undefined,'bold');
+  cols.forEach((c, i) => doc.text(c, xs[i], y));
+  doc.setFont(undefined,'normal'); y += 8;
 
-function _seccionTitulo(doc, titulo, x, y, ancho) {
-  doc.setFillColor(...C.verde);
-  doc.rect(x, y, ancho - 40, 0.5, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.setTextColor(...C.verdeOsc);
-  doc.text(titulo, x, y - 3);
-  return y + 8;
-}
-
-function _tablaDoble(doc, rows, x, y, ancho) {
-  const col1w = 65;
-  rows.forEach(([ label, valor ], idx) => {
-    doc.setFillColor(idx % 2 === 0 ? 248 : 255, idx % 2 === 0 ? 252 : 255, idx % 2 === 0 ? 250 : 255);
-    doc.rect(x, y, ancho - 40, 7, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(...C.gris);
-    doc.text(label, x + 3, y + 5);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...C.oscuro);
-    doc.text(String(valor), x + col1w, y + 5);
-    y += 7;
+  (stats.filas ?? []).forEach((fila, idx) => {
+    if (idx % 2 === 0) { doc.setFillColor(247,250,250); doc.rect(15, y-5, 180, 8, 'F'); }
+    doc.setTextColor(...OSCURO).setFontSize(8);
+    const vals = [fila.etiqueta, fila.calorias||'—', fila.proteina+'g', fila.carbohidratos+'g', fila.grasas+'g', fila.peso ? fila.peso+'kg' : '—'];
+    vals.forEach((v, i) => doc.text(String(v), xs[i], y));
+    y += 9;
   });
-  return y + 5;
+
+  _pie(doc, 3);
 }
 
-function _tablaHeaderSimple(doc, cols, xs, y, ancho) {
-  doc.setFillColor(...C.oscuro);
-  doc.rect(20, y, ancho - 40, 7, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(...C.blanco);
-  cols.forEach((col, i) => doc.text(col, xs[i] + 2, y + 5));
+// ── Helpers de dibujo ─────────────────────────────────────
+
+function _fondo(doc) {
+  doc.setFillColor(...OSCURO);
+  doc.rect(0, 0, 210, 297, 'F');
 }
 
-// ── Utilidades ────────────────────────────────────────────
-function _fechaHoy() {
-  return new Date().toISOString().split('T')[0];
+function _logoTexto(doc, titulo, sub) {
+  doc.setTextColor(255,255,255).setFontSize(28).setFont(undefined,'bold');
+  doc.text(titulo, 105, 55, { align: 'center' });
+  doc.setFontSize(13).setFont(undefined,'normal').setTextColor(...VERDE);
+  doc.text(sub, 105, 68, { align: 'center' });
+  // Decoración
+  doc.setFillColor(...VERDE);
+  doc.rect(40, 74, 130, 1, 'F');
 }
 
-function _fechaHumana() {
-  return new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+function _seccion(doc, titulo, y) {
+  doc.setFillColor(...VERDE);
+  doc.roundedRect(15, y, 180, 8, 2, 2, 'F');
+  doc.setTextColor(255,255,255).setFontSize(10).setFont(undefined,'bold');
+  doc.text(titulo, 20, y + 5.5);
+  doc.setFont(undefined,'normal');
 }
 
-function _capitalizar(str) {
-  return str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+function _cabecera(doc, titulo) {
+  doc.setFillColor(...OSCURO);
+  doc.rect(0, 0, 210, 30, 'F');
+  doc.setTextColor(255,255,255).setFontSize(14).setFont(undefined,'bold');
+  doc.text(titulo, 105, 18, { align: 'center' });
+  doc.setFont(undefined,'normal');
 }
 
-function _truncar(str, max) {
-  return str && str.length > max ? str.slice(0, max - 1) + '…' : (str ?? '');
+function _tabla2col(doc, filas, y0) {
+  filas.forEach(([label, valor], i) => {
+    const y = y0 + i * 10;
+    if (i % 2 === 0) { doc.setFillColor(...CLARO); doc.rect(15, y-4, 180, 9, 'F'); }
+    doc.setFontSize(9).setTextColor(...GRIS).setFont(undefined,'bold');
+    doc.text(label, 20, y + 1);
+    doc.setFont(undefined,'normal').setTextColor(...OSCURO);
+    doc.text(valor, 90, y + 1);
+  });
 }
 
-function _deltaCalories(perfil) {
-  if (!perfil.tdee || !perfil.macros?.calorias) return '—';
-  const delta = perfil.macros.calorias - perfil.tdee;
-  return (delta > 0 ? '+' : '') + delta + ' kcal/día';
+function _fila4macros(doc, macros, y) {
+  const items = [
+    ['🔥 Calorías', macros.calorias ?? 0, 'kcal'],
+    ['🥩 Proteína', macros.proteina ?? 0, 'g'],
+    ['🍞 Carbos',   macros.carbohidratos ?? 0, 'g'],
+    ['🥑 Grasas',   macros.grasas ?? 0, 'g']
+  ];
+  const ancho = 42;
+  items.forEach((item, i) => {
+    const x = 16 + i * (ancho + 3);
+    doc.setFillColor(...CLARO); doc.roundedRect(x, y, ancho, 22, 2, 2, 'F');
+    doc.setTextColor(...VERDE).setFontSize(14).setFont(undefined,'bold');
+    doc.text(String(item[1]), x + ancho/2, y + 10, { align: 'center' });
+    doc.setFont(undefined,'normal').setTextColor(...GRIS).setFontSize(7);
+    doc.text(item[2], x + ancho/2, y + 16, { align: 'center' });
+    doc.text(item[0], x + ancho/2, y + 20, { align: 'center' });
+  });
 }
 
-function _labelObjetivo(clave) {
-  return {
-    perdida_rapida:    'Pérdida rápida',
-    perdida_moderada:  'Pérdida moderada',
-    mantenimiento:     'Mantenimiento',
-    ganancia_limpia:   'Ganancia limpia',
-    volumen:           'Volumen'
-  }[clave] ?? clave ?? '—';
+function _pie(doc, pagina) {
+  doc.setFontSize(8).setTextColor(...GRIS);
+  doc.text(`Ready Balance · Pág. ${pagina}`, 105, 290, { align: 'center' });
+  doc.text(new Date().toLocaleDateString('es-MX'), 190, 290, { align: 'right' });
 }
 
-function _labelActividad(clave) {
-  return {
-    sedentario:  'Sedentario',
-    ligero:      'Ligero (1-3 días)',
-    moderado:    'Moderado (3-5 días)',
-    activo:      'Activo (6-7 días)',
-    muy_activo:  'Muy activo'
-  }[clave] ?? clave ?? '—';
+function _labelObj(k) {
+  return { perdida_rapida:'Pérdida rápida', perdida_moderada:'Pérdida moderada', mantenimiento:'Mantenimiento', ganancia_limpia:'Ganancia limpia', volumen:'Volumen' }[k] ?? k ?? '—';
+}
+
+function _labelAct(k) {
+  return { sedentario:'Sedentario', ligero:'Ligero', moderado:'Moderado', activo:'Activo', muy_activo:'Muy activo' }[k] ?? k ?? '—';
 }

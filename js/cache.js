@@ -1,33 +1,19 @@
-/**
-  *CACHE.JS En lugar de ir a buscar los datos al servidor CADA VEZ que el usuario
-  *abre la app, guardamos una copia local en el navegador.
-  *
-  *LOCALSTORAGE Espacio de almacenamiento que el navegador provee.
-  *
-  *SESSIONSTORAGE Los datos SE BORRAN cuando el usuario cierra el tab o el navegador.
- */
+// cache.js — LocalStorage/SessionStorage con TTL + logger
 
-// cache.js — LocalStorage/SessionStorage con TTL
+import { CONFIG, log } from './config.js';
 
-import { CONFIG } from './config.js';
-
-const PREFIX   = 'rb_v2_';
-const TTL_DEF  = CONFIG.duracionCache;
+const PREFIX = CONFIG.cache.clave + '_';
+const TTL    = CONFIG.cache.duracion;
 
 // Serializa y guarda con timestamp de expiración
-export function guardarCache(clave, datos, ttl = TTL_DEF, session = false) {
+export function guardarCache(clave, datos, ttl = TTL, session = false) {
   try {
-    const entrada = {
-      datos,
-      expira: Date.now() + ttl,
-      version: CONFIG.version
-    };
-    const store = session ? sessionStorage : localStorage;
-    store.setItem(PREFIX + clave, JSON.stringify(entrada));
+    const entrada = { datos, expira: Date.now() + ttl, v: CONFIG.version };
+    (session ? sessionStorage : localStorage).setItem(PREFIX + clave, JSON.stringify(entrada));
     return true;
   } catch (err) {
     if (err.name === 'QuotaExceededError') _limpiarExpirados();
-    console.warn('guardarCache:', err.message);
+    log.warn('guardarCache:', err.message);
     return false;
   }
 }
@@ -35,40 +21,46 @@ export function guardarCache(clave, datos, ttl = TTL_DEF, session = false) {
 // Lee y valida TTL; retorna null si no existe o expiró
 export function obtenerCache(clave, session = false) {
   try {
-    const store  = session ? sessionStorage : localStorage;
-    const raw    = store.getItem(PREFIX + clave);
+    const raw = (session ? sessionStorage : localStorage).getItem(PREFIX + clave);
     if (!raw) return null;
-    const entrada = JSON.parse(raw);
-    if (Date.now() > entrada.expira) {
-      eliminarCache(clave, session);
-      return null;
-    }
-    return entrada.datos;
+    const e = JSON.parse(raw);
+    if (Date.now() > e.expira) { eliminarCache(clave, session); return null; }
+    return e.datos;
   } catch {
     eliminarCache(clave, session);
     return null;
   }
 }
 
-// Borra una clave específica
 export function eliminarCache(clave, session = false) {
-  const store = session ? sessionStorage : localStorage;
-  store.removeItem(PREFIX + clave);
+  (session ? sessionStorage : localStorage).removeItem(PREFIX + clave);
 }
 
-// Limpia TODO el caché de la app (útil en logout)
+// Limpia TODO el caché de la app (logout)
 export function limpiarCache(incluirSession = true) {
   _limpiarStore(localStorage);
   if (incluirSession) _limpiarStore(sessionStorage);
+  log.info('Caché limpiado');
 }
 
-// Cache-first: usa caché válido o ejecuta fnCarga y cachea el resultado
-export async function cargarConCache(clave, fnCarga, ttl = TTL_DEF) {
+// Cache-first: usa caché o ejecuta fn y cachea
+export async function cargarConCache(clave, fn, ttl = TTL) {
   const cached = obtenerCache(clave);
-  if (cached !== null) return cached;
-  const datos = await fnCarga();
+  if (cached !== null) { log.info('Cache hit:', clave); return cached; }
+  const datos = await fn();
   guardarCache(clave, datos, ttl);
   return datos;
+}
+
+// Estadísticas de uso — solo en modo debug
+export function estadisticasCache() {
+  const claves = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k?.startsWith(PREFIX)) claves.push(k.replace(PREFIX, ''));
+  }
+  log.info('Claves en caché:', claves);
+  return claves;
 }
 
 // ── Privadas ──────────────────────────────────────────────
@@ -86,10 +78,7 @@ function _limpiarExpirados() {
     const k = localStorage.key(i);
     if (!k?.startsWith(PREFIX)) continue;
     try {
-      const e = JSON.parse(localStorage.getItem(k));
-      if (ahora > e.expira) localStorage.removeItem(k);
-    } catch {
-      localStorage.removeItem(k);
-    }
+      if (ahora > JSON.parse(localStorage.getItem(k)).expira) localStorage.removeItem(k);
+    } catch { localStorage.removeItem(k); }
   }
 }

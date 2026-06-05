@@ -1,30 +1,32 @@
- /* CONFIG.JS 
-  Este es el archivo de CONFIGURACIÓN del sistema. Carga todos los 
-  datos que la aplicación necesita(alimentos, usuarios, planes) desde 
-  archivos JSON externos.Centraliza toda la configuración en un solo lugar. 
- 
-  FETCH() — Peticiones HTTP para cargar los archivos JSON. Es asíncrono, por eso usamos async/await.
-  ASYNC/AWAIT — Permite escribir código asíncrono de forma más legible, como si fuera síncrono.
-  PROMISE.ALL() — Carga los 3 archivos JSON al mismo tiempo, lo que es más eficiente que cargarlos uno por uno.
-  RESPONSE.JSON() — Convierte la respuesta del servidor de texto JSON a un objeto/array de JavaScript.
-  */
+// config.js — Configuración global + logger de entorno
 
-//// config.js — Configuración global y carga de datos
+// ── Detectar entorno ──────────────────────────────────────
+const ES_DEV = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 export const CONFIG = {
-  version: '2.0.0',
-  appName: 'Ready Balance',
+  version:  '8.0.0',
+  appName:  'Ready Balance',
+  entorno:  ES_DEV ? 'desarrollo' : 'producción',
+  debug:    ES_DEV,
+
   rutas: {
     alimentos: './data/foods.json',
     usuarios:  './data/users.json',
     planes:    './data/plans.json'
   },
-  tiempoLimite: 5000,
-  claveCache: 'readyBalanceCache',
-  duracionCache: 3_600_000,
-  // Referencia OMS para adulto promedio
-  valoresRef: {
-    caloriasBase:            2000,
+
+  cache: {
+    duracion:   3_600_000,       // 1 hora
+    duracionDia: 86_400_000,     // 24 horas
+    clave:      'rb_v8'
+  },
+
+  fetch: {
+    timeout: 5000                // 5 s antes de abortar
+  },
+
+  // Referencia OMS / valores nutricionales base
+  nutricion: {
     proteinaPorKg:           0.8,
     carbohidratosPorcentaje: 0.50,
     grasasPorcentaje:        0.30,
@@ -32,45 +34,55 @@ export const CONFIG = {
   }
 };
 
-// Fetch con timeout interno
+// ── Logger controlado ─────────────────────────────────────
+// En producción todos los métodos son no-ops → cero console.log
+export const log = CONFIG.debug
+  ? {
+      info:  (...a) => console.log('[RB]',  ...a),
+      warn:  (...a) => console.warn('[RB]', ...a),
+      error: (...a) => console.error('[RB]',...a),
+      time:  (l)    => console.time(l),
+      timeEnd:(l)   => console.timeEnd(l)
+    }
+  : { info:()=>{}, warn:()=>{}, error:()=>{}, time:()=>{}, timeEnd:()=>{} };
+
+// ── Fetch con timeout y AbortController ──────────────────
 async function fetchJSON(url, nombre) {
-  const ctrl   = new AbortController();
-  const timer  = setTimeout(() => ctrl.abort(), CONFIG.tiempoLimite);
+  const ctrl  = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), CONFIG.fetch.timeout);
   try {
-    const res = await fetch(url, {
-      method:  'GET',
-      signal:  ctrl.signal,
-      headers: { Accept: 'application/json' }
-    });
+    const res = await fetch(url, { signal: ctrl.signal, headers: { Accept: 'application/json' } });
     clearTimeout(timer);
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${nombre}`);
-    const data = await res.json();
-    // Acepta array vacío pero no null/undefined
-    if (data === null || data === undefined) throw new Error(`Datos nulos: ${nombre}`);
-    return data;
+    return await res.json();
   } catch (err) {
     clearTimeout(timer);
-    if (err.name === 'AbortError') throw new Error(`Timeout: ${nombre}`);
+    if (err.name === 'AbortError') throw new Error(`Timeout al cargar ${nombre}`);
     throw err;
   }
 }
 
-// Carga paralela de los tres JSON
+// Carga paralela — retorna vacíos en caso de fallo parcial
 export async function cargarDatos() {
+  log.time('cargarDatos');
   try {
-    const [alimentos, usuarios, planes] = await Promise.all([
+    const [alimentos, usuarios, planes] = await Promise.allSettled([
       fetchJSON(CONFIG.rutas.alimentos, 'alimentos'),
       fetchJSON(CONFIG.rutas.usuarios,  'usuarios'),
       fetchJSON(CONFIG.rutas.planes,    'planes')
     ]);
-    return { alimentos, usuarios, planes };
+    log.timeEnd('cargarDatos');
+    return {
+      alimentos: alimentos.status === 'fulfilled' ? alimentos.value : [],
+      usuarios:  usuarios.status  === 'fulfilled' ? usuarios.value  : [],
+      planes:    planes.status    === 'fulfilled' ? planes.value    : []
+    };
   } catch (err) {
-    console.error('cargarDatos:', err.message);
+    log.error('cargarDatos:', err.message);
     return { alimentos: [], usuarios: [], planes: [] };
   }
 }
 
-// Carga individual de un recurso
 export async function cargarAlimentos() {
   return fetchJSON(CONFIG.rutas.alimentos, 'alimentos');
 }
